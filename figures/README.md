@@ -8,7 +8,7 @@ The plotted endpoints come from the `Powerstats for: System Events` section of t
 - end: 187.76 GB at 11:14:29.491 (111.742 elapsed seconds);
 - installed physical memory: 24 GB, verified separately from `hw.memsize`.
 
-Only the two endpoints were recorded. The dashed connector helps the eye compare them; it is not an interpolation or measured time series. The source report uses `MB` and `GB` labels. For the log-scale calculation, the generator explicitly normalizes one reported GB to 1,024 reported MB and states that assumption on the figure. The growth callout is deliberately rounded to `>12,000x`.
+The diagnostic recorded two endpoints. The dashed connector is a visual guide between them; intermediate values were unmeasured. The source report uses `MB` and `GB` labels. For the log-scale calculation, the generator explicitly normalizes one reported GB to 1,024 reported MB and states that assumption on the figure. The growth callout is deliberately rounded to `>12,000x`.
 
 Regenerate from the repository root:
 

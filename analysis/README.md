@@ -7,4 +7,4 @@ python3 analysis/analyze_observations.py --json
 python3 -m unittest tests/test_analysis.py -v
 ```
 
-The analysis has two observed episodes and is descriptive only. A calculated endpoint-derived mean change is not a sampled allocation-rate trajectory.
+The analysis has two observed episodes and uses descriptive statistics. The endpoint-derived mean divides net endpoint change by elapsed time; intermediate allocation behavior was unmeasured.

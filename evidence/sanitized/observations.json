@@ -16,7 +16,7 @@
   "recorded_trigger_context": {
     "first_broad_query_executed_at": "2026-10-27T11:12:34.866-05:00",
     "second_broad_query_executed_at": "2026-10-27T11:21:00.713-05:00",
-    "interpretation": "timestamps establish temporal association, not source-level causation"
+    "interpretation": "timestamps establish temporal association; source-level causation remains unresolved"
   },
   "first_process": {
     "pid": 40483,
@@ -91,17 +91,17 @@
       "sha256": "f4a35abede2cd48de057d856499502c665a503444813465be66dc4f29106bb14"
     }
   ],
-  "interpretation_boundary": {
-    "demonstrated_impact": "local availability loss through resource exhaustion",
-    "not_demonstrated": [
-      "remote reachability",
-      "malware installation",
-      "prompt injection in this incident",
-      "data exfiltration",
-      "memory corruption",
-      "privilege escalation",
+  "assessment_scope": {
+    "confirmed_impact": "local availability loss through resource exhaustion",
+    "unresolved_fields": [
+      "source-level defect",
+      "affected release range",
+      "prompt origin",
+      "incident-window network activity",
+      "memory-safety behavior",
+      "privilege-transition behavior",
       "fixed release",
-      "bounty eligibility"
+      "bounty decision"
     ]
   }
 }

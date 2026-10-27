@@ -57,7 +57,7 @@ def _episode_metrics(
 
 
 def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
-    """Calculate descriptive metrics without implying a sampled trajectory."""
+    """Calculate descriptive metrics with explicit endpoint-only scope."""
 
     physical_ram_mib = Decimal(
         observations["assessed_system"]["physical_memory_bytes"]
@@ -94,7 +94,7 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
         "statistical_scope": "descriptive-only",
         "rate_caveat": (
             "Rates divide the difference between two endpoints by elapsed time; "
-            "the intervening trajectory was not sampled."
+            "intermediate trajectory was unmeasured."
         ),
         "episodes": {
             "first": _episode_metrics(first_report, physical_ram_mib),

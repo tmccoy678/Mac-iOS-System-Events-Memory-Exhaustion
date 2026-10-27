@@ -183,9 +183,9 @@ figure <- ggdraw() +
   ) +
   draw_plot(panels, x = 0.015, y = 0.09, width = 0.97, height = 0.78) +
   draw_label(
-    "Only the start and end footprints were recorded; the dashed connector is visual, not a sampled trajectory. GB/MB labels reproduce Apple's diagnostic report; normalization uses 1 GB = 1,024 MB.",
-    x = 0.035, y = 0.026, hjust = 0, vjust = 0,
-    fontfamily = "Helvetica", size = 9.5,
+    "The diagnostic recorded start and end footprints; the dashed connector is a visual guide and intermediate trajectory was unmeasured.\nGB/MB labels reproduce Apple's report; normalization uses 1 GB = 1,024 MB.",
+    x = 0.035, y = 0.018, hjust = 0, vjust = 0,
+    fontfamily = "Helvetica", size = 9.1,
     color = colors[["grey"]]
   )
 

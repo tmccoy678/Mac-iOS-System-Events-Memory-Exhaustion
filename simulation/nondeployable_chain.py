@@ -18,19 +18,19 @@ class CapabilityIntentionallyOmitted(RuntimeError):
 
 
 def collect_real_data() -> None:
-    """Placeholder for data access; no filesystem, app, or account API is present."""
+    """Fail-closed boundary representing intentionally omitted real data access."""
 
     raise CapabilityIntentionallyOmitted("real data collection is intentionally omitted")
 
 
 def invoke_system_events_trigger() -> None:
-    """Placeholder for the availability primitive; no process execution is present."""
+    """Fail-closed boundary representing intentionally omitted process execution."""
 
     raise CapabilityIntentionallyOmitted("System Events execution is intentionally omitted")
 
 
 def send_over_network() -> None:
-    """Placeholder for egress; no socket, HTTP client, or destination is present."""
+    """Fail-closed boundary representing intentionally omitted network egress."""
 
     raise CapabilityIntentionallyOmitted("network egress is intentionally omitted")
 

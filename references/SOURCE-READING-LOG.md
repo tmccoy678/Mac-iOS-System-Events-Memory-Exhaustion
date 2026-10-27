@@ -1,6 +1,6 @@
 # Source reading log
 
-Taylor requested that the manuscript cite only sources read completely. I applied that rule to the substantive sources below. “Complete” means the full human-readable page or the complete structured vulnerability record set available on the review date, not merely a search result, snippet, heading, or abstract.
+Taylor requested that the manuscript cite only sources read completely. I applied that rule to the substantive sources below. Eligible coverage comprised the full human-readable page or complete structured vulnerability record set available on the review date. Search results, snippets, headings, and abstracts alone were ineligible.
 
 | Source | Coverage completed on 2026-10-27 | Use in manuscript |
 | --- | --- | --- |
@@ -15,4 +15,4 @@ Taylor requested that the manuscript cite only sources read completely. I applie
 
 ## Excluded-source rule
 
-Search-result snippets, partial papers, secondary summaries, and pages not read through their complete substantive content were not cited. The repository survey informed organization and voice only; those repositories are not treated as empirical authorities for this incident.
+The citation set excludes search-result snippets, partial papers, secondary summaries, and pages lacking complete substantive review. The repository survey informed organization and voice. Empirical claims derive from the incident record and cited sources.

@@ -29,13 +29,13 @@ All times below are local time in CDT (UTC-05:00) on 2026-10-27. The timeline co
 
 ## Attribution
 
-The direct trigger was the locally recorded automation sequence. The session used an automation-capable coding agent, but the evidence attributes the harmful action to the generated `osascript` commands rather than to Outlook content. No hidden prompt, invisible text, backspace-retained instruction, or malicious sender was identified in this incident.
+The direct trigger was the locally recorded automation sequence. Command provenance attributes the harmful action to agent-generated `osascript` requests. Earlier prompt provenance is unavailable, leaving prompt origin unknown.
 
 The repeated stack family and recurrence in a fresh `System Events` process support an availability defect in Apple's handling of broad accessibility object and property requests. Apple's implementation is closed source, so the exact source-level defect remains unknown.
 
 ## Evidence limits
 
-- The two plotted points are endpoints, not a sampled growth curve.
-- Jetsam reports contain aggregate process histories. Their `low-swap` reason counts do not prove that every listed process was killed at one instant.
-- Process footprint and resident-page accounting are not measures of source-content volume or network transfer.
-- The record supports severe local resource exhaustion. It does not establish data loss, exfiltration, memory corruption, privilege escalation, or remote exploitation.
+- The plot contains two measured endpoints. Intermediate trajectory was unmeasured.
+- Jetsam reports contain aggregate process histories. The simultaneous kill set is unknown.
+- Process footprint and resident-page accounting quantify memory state. Source-content volume and network transfer require separate measurements.
+- Confirmed impact: severe local resource exhaustion. File-loss outcome, outbound traffic, memory-safety behavior, and privilege-transition behavior remain unresolved by the preserved record.

@@ -8,4 +8,4 @@ This repository documents an uncoordinated macOS availability defect and is inte
 - Record Apple's case identifier privately when one is assigned.
 - Do not add credentials, message bodies, screenshots of private correspondence, serial numbers, hardware UUIDs, account identifiers, or unredacted diagnostic bundles to Git.
 
-The report distinguishes observed facts from proposed remediation. No file in this repository should be described as an Apple-issued patch, advisory, CVE, or confirmation.
+The report distinguishes observed facts from proposed remediation. Apple-issued patch, advisory, CVE, and confirmation labels require a corresponding Apple publication.

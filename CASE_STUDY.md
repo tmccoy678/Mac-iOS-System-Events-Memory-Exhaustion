@@ -3,13 +3,13 @@
 Taylor McCoy<br>
 October 27, 2026
 
-> **Disclosure status:** Private coordinated-disclosure manuscript. The active trigger, raw Apple diagnostics, and private session material are not published in this repository.
+> **Disclosure status:** Private coordinated-disclosure manuscript. This repository contains sanitized evidence and disabled reproduction material; raw Apple diagnostics and private session records remain in the separate disclosure archive.
 
 ## Abstract
 
 I investigated an extreme memory event on a Mac17,2 with an Apple M5, 24 GB of physical memory, and macOS Golden Gate 27.0.1 (26A434). A local coding agent was inspecting Microsoft Outlook through AppleScript and JavaScript for Automation when it generated broad accessibility queries, including recursive `uiElements()` traversal and `entire contents` enumeration through Apple's `System Events` process. Apple's first CPU-resource diagnostic measured the process footprint increasing from 15.48 MB to 187.76 GB in 111.742 seconds while averaging 66% CPU. Under the unit normalization used in this study, that was a 12,420.30-fold endpoint increase and an endpoint equal to 7.82 times installed physical memory. A later jetsam record accounted 222.55 GiB to the process. After `System Events` was relaunched and broad queries were repeated, a fresh process entered the same stack family; its measured footprint rose from 110.64 MB to 4,248.64 MB in 91.488 seconds, and a later jetsam record reported a 253.91 GiB lifetime maximum. Both diagnostics repeatedly sampled one `System Events` offset followed by Foundation scripting-property lookup in `NSScriptClassDescription`.
 
-The evidence supports a local availability failure associated with broad accessibility enumeration and unbounded scripting work. It does not identify the exact closed-source defect or show data exfiltration, prompt injection, memory corruption, privilege escalation, or remote exploitation. I model a plausible prompt-injection delivery chain because an agent with shell, Automation, Accessibility, and network authority could combine otherwise separate capabilities. The accompanying model is deliberately non-deployable: it uses one fixed synthetic record, surfaces a zero-width character, and replaces real data access, `System Events` execution, and network egress with fail-closed stubs. This case demonstrates why agent controllers need content/tool separation, narrow accessibility selectors, recursion and memory budgets, retry suppression, independent process monitoring, and egress controls that remain effective during local resource exhaustion.
+The evidence establishes a local availability failure associated with broad accessibility enumeration and unbounded scripting work. Apple's closed source leaves the exact failed invariant unknown. I model a plausible prompt-injection delivery chain because an agent with shell, Automation, Accessibility, and network authority could combine otherwise separate capabilities. The accompanying model is deliberately non-deployable: it uses one fixed synthetic record, surfaces a zero-width character, and replaces real data access, `System Events` execution, and network egress with fail-closed stubs. This case demonstrates why agent controllers need content/tool separation, narrow accessibility selectors, recursion and memory budgets, retry suppression, independent process monitoring, and egress controls that remain effective during local resource exhaustion.
 
 **Keywords:** macOS; System Events; AppleScript; accessibility; resource exhaustion; prompt injection; agent security; forensic case study; denial of service
 
@@ -17,9 +17,9 @@ The evidence supports a local availability failure associated with broad accessi
 
 At approximately 11:12 local time on October 27, 2026, a coding agent working in my logged-in session attempted to inspect Outlook's interface. The agent first used a narrow `System Events` query, then wrote a JavaScript for Automation helper that recursively called `uiElements()` to a nominal depth of six without a global node limit, cycle check, memory limit, or wall-clock budget. It next generated AppleScript using `entire contents of front window` and bulk property retrieval. Within the same interval, Apple's diagnostic system recorded `System Events` growing from megabytes to a reported 187.76 GB footprint.
 
-The number was startling because the Mac contained 24 GB of physical memory. Process footprint can exceed physical RAM through virtual-memory accounting, compression, swap, and retained allocation. It is not a measure of how much Outlook data was read, and it is not a measure of network transmission. The central empirical question was therefore narrower: what local process entered the runaway state, which recorded actions preceded it, did the behavior recur in a fresh process, and what security boundary failed?
+The number was startling because the Mac contained 24 GB of physical memory. Process footprint can exceed physical RAM through virtual-memory accounting, compression, swap, and retained allocation. I therefore treated 187.76 GB as Apple's memory-accounting value and analyzed network activity as a separate measurement domain. The central empirical questions were direct: what local process entered the runaway state, which recorded actions preceded it, did the behavior recur in a fresh process, and what security boundary failed?
 
-`System Events` is a first-party automation bridge. macOS separately controls whether one application may automate another, and accessibility-based UI scripting requires an already authorized local host (Apple Inc., n.d.-a). Foundation's documented scripting machinery includes `NSScriptSuiteRegistry`, which manages scripting terminology, and `NSScriptClassDescription`, which maps Apple-event codes to scriptable keys (Apple Inc., n.d.-b, n.d.-c). Those documented roles are relevant because the preserved stacks repeatedly traverse `-[NSScriptClassDescription keyWithAppleEventCode:]` and a private property-description lookup. They do not reveal the private implementation or establish the missing guard.
+`System Events` is a first-party automation bridge. macOS separately controls whether one application may automate another, and accessibility-based UI scripting requires an already authorized local host (Apple Inc., n.d.-a). Foundation's documented scripting machinery includes `NSScriptSuiteRegistry`, which manages scripting terminology, and `NSScriptClassDescription`, which maps Apple-event codes to scriptable keys (Apple Inc., n.d.-b, n.d.-c). Those documented roles are relevant because the preserved stacks repeatedly traverse `-[NSScriptClassDescription keyWithAppleEventCode:]` and a private property-description lookup. The private implementation and failed guard remain undisclosed.
 
 I asked five questions:
 
@@ -29,13 +29,13 @@ I asked five questions:
 4. What can the record support about prompt injection, malware, and exfiltration?
 5. Which controls would have prevented or contained the event without requiring an Apple patch?
 
-This is a two-episode forensic case study, not a population estimate. I use descriptive statistics, preserve the distinction between measured endpoints and inferred behavior between them, and leave the source-level defect unknown.
+This two-episode forensic case study uses descriptive statistics. Population frequency and source-level defect remain unknown.
 
 ## Methods
 
 ### Case design and system
 
-I conducted a retrospective, single-machine forensic case study. The assessed system was a Mac17,2 with an Apple M5, 24 GiB of physical memory, macOS Golden Gate 27.0.1 (26A434), and `System Events` 1.3.6 (build 607). Microsoft Outlook was the UI target. The initiating commands ran locally through `osascript` from an automation-capable coding-agent workflow. Existing Automation and Accessibility permissions were prerequisites; the event did not create those grants.
+I conducted a retrospective, single-machine forensic case study. The assessed system was a Mac17,2 with an Apple M5, 24 GiB of physical memory, macOS Golden Gate 27.0.1 (26A434), and `System Events` 1.3.6 (build 607). Microsoft Outlook was the UI target. The initiating commands ran locally through `osascript` from an automation-capable coding-agent workflow. Existing Automation and Accessibility permissions supplied the required privileges.
 
 I refer to two fresh-process episodes:
 
@@ -44,35 +44,35 @@ I refer to two fresh-process episodes:
 
 ### Evidence preservation
 
-The primary evidence comprised two Apple CPU-resource diagnostics, two Apple jetsam records, and the local automation-session record. I preserved the four Apple artifacts outside Git because diagnostic bundles can expose host and process metadata. Their SHA-256 values, derived numerical fields, and selected stack markers are recorded in [`evidence/sanitized/observations.json`](evidence/sanitized/observations.json). The command sequence is reduced to a privacy-preserving chronology in [`docs/forensic-timeline.md`](docs/forensic-timeline.md). No message body, account identifier, credential, serial number, hardware UUID, or private email content is included.
+The primary evidence comprised two Apple CPU-resource diagnostics, two Apple jetsam records, and the local automation-session record. I preserved the four Apple artifacts outside Git because diagnostic bundles can expose host and process metadata. Their SHA-256 values, derived numerical fields, and selected stack markers are recorded in [`evidence/sanitized/observations.json`](evidence/sanitized/observations.json). The command sequence is reduced to a privacy-preserving chronology in [`docs/forensic-timeline.md`](docs/forensic-timeline.md). Sanitization removes message bodies, account identifiers, credentials, serial numbers, hardware UUIDs, and private email content.
 
-I matched events by local timestamp, process identifier, executable, Apple-event direction, and diagnostic interval. The first broad recursive helper executed at 11:12:34.866; the first diagnostic footprint measurement began 2.883 seconds later. The repeated `entire contents` helper executed at 11:21:00.713; the second footprint interval began 2.828 seconds later. Temporal order alone does not identify the source-level defect, so I also compared the two sampled stack families and the fresh-process recurrence.
+I matched events by local timestamp, process identifier, executable, Apple-event direction, and diagnostic interval. The first broad recursive helper executed at 11:12:34.866; the first diagnostic footprint measurement began 2.883 seconds later. The repeated `entire contents` helper executed at 11:21:00.713; the second footprint interval began 2.828 seconds later. Temporal order establishes association. Matching stack families and fresh-process recurrence supply the mechanistic evidence.
 
 ### Public-source review
 
-I read Apple's Automation guidance, the complete accessible documentation for `NSScriptClassDescription` and `NSScriptSuiteRegistry`, Apple's Security Bounty guidelines, and every vulnerability record in Apple's macOS 27.2 security advisory. The advisory contained 263 structured vulnerability records; none was titled `System Events`, AppleScript, or Automation for this trigger (Apple Inc., 2026). I also read OWASP's prompt-injection entry and MITRE's CWE-400 entry in full (MITRE, 2026; OWASP Foundation, 2025). A source-coverage ledger is preserved in [`references/SOURCE-READING-LOG.md`](references/SOURCE-READING-LOG.md), and the APA references are in [`REFERENCES.md`](REFERENCES.md).
+I read Apple's Automation guidance, the complete accessible documentation for `NSScriptClassDescription` and `NSScriptSuiteRegistry`, Apple's Security Bounty guidelines, and every vulnerability record in Apple's macOS 27.2 security advisory. The advisory contained 263 structured vulnerability records and included zero `System Events`, AppleScript, or Automation entry matching this trigger (Apple Inc., 2026). I also read OWASP's prompt-injection entry and MITRE's CWE-400 entry in full (MITRE, 2026; OWASP Foundation, 2025). A source-coverage ledger is preserved in [`references/SOURCE-READING-LOG.md`](references/SOURCE-READING-LOG.md), and the APA references are in [`REFERENCES.md`](REFERENCES.md).
 
 ### Agent and command attribution
 
-I treated the recorded shell and automation commands as the direct action layer. The local agent generated the risky query shapes while troubleshooting Outlook. I searched the available incident record for a hidden or invisible instruction that could explain those commands and found none. Prompt injection therefore remains a threat-model path rather than an observed cause.
+I treated the recorded shell and automation commands as the direct action layer. The local agent generated the risky query shapes while troubleshooting Outlook. Earlier prompt provenance is unavailable. Prompt origin remains unknown, and prompt injection remains a plausible threat-model path.
 
-The agent's instructions, model family, and application context are not substitutes for command provenance. The defensible attribution is that a local agent workflow authored and executed broad `osascript` requests under my session's existing permissions. The identity and intent of any hypothetical upstream attacker are unknown because no attacker-controlled instruction was identified.
+Command provenance supplies the strongest attribution: a local agent workflow authored and executed broad `osascript` requests under my session's existing permissions. The identity and intent of any hypothetical upstream attacker remain unknown.
 
 ### Non-deployable threat simulation
 
 I implemented a safe model of the larger chain in [`simulation/nondeployable_chain.py`](simulation/nondeployable_chain.py). It demonstrates four boundaries: untrusted content, a policy decision, synthetic staging, and omitted dangerous capabilities. The input contains one visible marker and one U+200B zero-width space. The program renders an escaped view, treats the text as data, and stages only the fixed non-secret byte string `DEMO-RECORD-NOT-PRIVATE`.
 
-The model cannot read real data, launch a process, invoke AppleScript, contact a destination, or transmit bytes. Calls to those three omitted capabilities raise `CapabilityIntentionallyOmitted`. Five tests verify the absent capabilities, hidden-character surfacing, fixed fixture hash, stage status, and command-line report. This supplies a concrete review target without supplying malware or a working denial-of-service chain.
+The model's capability surface is fixed synthetic data and local reporting. Real data access, process launch, AppleScript invocation, destination contact, and byte transmission terminate at functions that raise `CapabilityIntentionallyOmitted`. Five tests verify capability omission, hidden-character surfacing, fixed fixture hash, stage status, and command-line report. This supplies a concrete defensive review target.
 
 ### Safety constraints
 
-I did not replay the hazardous query during this investigation. The affected Mac remains on macOS 27.0.1 at my request, and no system patch or configuration change was applied. Active validation belongs on a disposable test Mac with an independent watchdog, a second control channel, hard time and memory limits, and a plan to terminate both the caller and the specific `System Events` instance.
+Investigation safety boundary: the hazardous query remained unexecuted. The affected Mac remains on macOS 27.0.1 at my request, with system patch and configuration state preserved. Active validation belongs on a disposable test Mac with an independent watchdog, a second control channel, hard time and memory limits, and a plan to terminate both the caller and the specific `System Events` instance.
 
 ## Data Analysis and Statistics
 
-I analyzed two observed episodes (`n = 2`) descriptively. I did not perform an inferential significance test or estimate an exploitation probability. The cases were not randomly sampled, the query forms differed, and the later jetsam measurements occurred outside the CPU-resource intervals.
+I analyzed two observed episodes (`n = 2`) descriptively. Inferential significance testing and exploitation-probability estimation would be invalid for this selected two-case sample: query forms differed, random sampling was absent, and later jetsam measurements occurred outside the CPU-resource intervals.
 
-For a diagnostic endpoint reported in GB, I normalized the reported units using the figure's explicit convention of `1 GB = 1,024 MB`. This is a declared arithmetic convention for comparing Apple's printed MB and GB labels, not a claim that the diagnostic defined those labels as IEC units. The growth multiple was:
+For a diagnostic endpoint reported in GB, I normalized the reported units using the figure's explicit convention of `1 GB = 1,024 MB`. This declared arithmetic convention compares Apple's printed MB and GB labels; Apple's diagnostic documentation for the unit base was unavailable. The growth multiple was:
 
 ```text
 normalized endpoint / starting endpoint
@@ -84,7 +84,7 @@ The endpoint-derived mean change was:
 (normalized endpoint - starting endpoint) / measured interval seconds
 ```
 
-That quantity summarizes two endpoints. It is not an instantaneous allocation rate, and the path between endpoints was not sampled. The physical-memory multiple was the reported endpoint or jetsam GiB value divided by 24 GiB. The mean trigger-to-measurement lag was calculated from the two matched command and interval-start timestamps. [`analysis/analyze_observations.py`](analysis/analyze_observations.py) reproduces every derived value from the sanitized JSON.
+That quantity summarizes two endpoints. Intermediate allocation behavior was unmeasured, so I report it as an endpoint-derived mean change. The physical-memory multiple was the reported endpoint or jetsam GiB value divided by 24 GiB. The mean trigger-to-measurement lag was calculated from the two matched command and interval-start timestamps. [`analysis/analyze_observations.py`](analysis/analyze_observations.py) reproduces every derived value from the sanitized JSON.
 
 | Measure | Episode 1 | Episode 2 |
 | --- | ---: | ---: |
@@ -99,11 +99,11 @@ That quantity summarizes two endpoints. It is not an instantaneous allocation ra
 | Broad-query-to-measurement lag | 2.883 s | 2.828 s |
 | Later jetsam comparison | 9.2728× physical memory | 10.5795× physical memory at lifetime maximum |
 
-The arithmetic mean of the two diagnostic CPU averages was 66.5%. The mean temporal lag was 2.8555 seconds. Both episodes showed the same three selected stack markers, but `2/2` recurrence is a case observation rather than a reliability or prevalence estimate.
+The arithmetic mean of the two diagnostic CPU averages was 66.5%. The mean temporal lag was 2.8555 seconds. Both episodes showed the same three selected stack markers. Population reliability and prevalence remain unestimated.
 
 ![System Events footprint grew from 15.48 MB to 187.76 GB in 111.742 seconds](figures/system-events-footprint.png)
 
-**Figure 1.** Recorded first-episode endpoints. The dashed connector is visual only; it does not represent a sampled trajectory. The right panel compares the reported endpoint with installed physical memory.
+**Figure 1.** Recorded first-episode endpoints. The dashed connector visually links them; intermediate trajectory was unmeasured. The right panel compares the reported endpoint with installed physical memory.
 
 ## Results
 
@@ -123,33 +123,33 @@ The arithmetic mean of the two diagnostic CPU averages was 66.5%. The mean tempo
 
 **Observed.** After the first responder was terminated, new `System Events` PID 41643 received repeated broad Outlook queries. Its diagnostic measured 110.64 MB to 4,248.64 MB in 91.488 seconds at approximately 67% CPU. The selected stack markers matched Episode 1. A later jetsam record reported 16,639,984 resident pages and a lifetime maximum of 16,640,096 pages, equal to 253.9060 and 253.9077 GiB.
 
-**Inferred.** The recurrence shows that the first process's accumulated state was not required. It strengthens the association between the broad query family and the responder failure, while leaving general reproducibility across systems and applications unknown.
+**Inferred.** Fresh-process recurrence implicates the broad query and target interaction independent of first-process history. General reproducibility across systems and applications remains unknown.
 
 ### 4. The recorded agent workflow supplied the direct trigger sequence
 
-**Observed.** The local workflow generated recursive `uiElements()` traversal, `entire contents of front window`, bulk property retrieval, and retries. These commands preceded both measured intervals. The commands were troubleshooting attempts, not a purpose-built exploit.
+**Observed.** The local workflow generated recursive `uiElements()` traversal, `entire contents of front window`, bulk property retrieval, and retries. These commands preceded both measured intervals and originated during Outlook troubleshooting.
 
-**Unknown.** No preserved evidence identifies a hidden prompt, zero-width instruction, erased instruction, malicious email, or remote actor as the origin of those commands. The actor behind any hypothetical prompt injection is therefore unknown.
+**Unknown.** The preserved record lacks upstream-content provenance for the commands. Any hidden instruction or upstream actor remains unidentified.
 
-### 5. The event demonstrated availability impact, not 188 GB of exfiltration
+### 5. Availability impact and network-measurement scope
 
 **Observed.** The process footprint and jetsam accounting exceeded physical memory many times over and created severe compression and swap pressure. Terminating the runaway responder restored a healthy state. A 12:38:18 read-only check found no `System Events` process running, 83% system-wide memory free, and 1,877.12 MB of encrypted swap still in use. A second check at 12:54:55 again found no responder, 78% memory free, and 1,219.19 MB of 2,048 MB encrypted swap in use. macOS remained 27.0.1 (26A434).
 
-**Observed.** The record contains no matching network transfer, staged archive, destination, credential use, persistence mechanism, or malware installation. The 187.76 GB value is memory accounting, not source-data volume.
+**Observed.** Apple's 187.76 GB value records memory accounting. Incident-window network telemetry, staged archives, destinations, credential-use traces, and persistence records were unavailable in the preserved artifacts.
 
-**Inferred.** A separate malicious component could attempt data access and egress while using resource exhaustion as distraction or destructive cover. That chain requires capabilities the observed defect does not create.
+**Inferred.** A separate malicious component could attempt data access and egress while using resource exhaustion as distraction or destructive cover. Collection, staging, and egress require separate capabilities.
 
-### 6. The current public advisory does not identify this issue
+### 6. macOS 27.2 advisory status
 
-Apple's macOS 27.2 advisory, dated October 26, 2026, did not identify a `System Events`, AppleScript, or Automation entry matching this trigger among its 263 vulnerability records (Apple Inc., 2026). The affected range and repair status remain unknown because I did not install or test 27.2.
+Apple's macOS 27.2 advisory, dated October 26, 2026, contains zero `System Events`, AppleScript, or Automation entry matching this trigger among its 263 vulnerability records (Apple Inc., 2026). I left 27.2 untested; affected range and repair status remain unknown.
 
 ## Discussion
 
 ### A local availability primitive with an agent delivery path
 
-The narrow finding is a local availability primitive. Code already running under the logged-in user, with the required Automation and Accessibility grants, can ask a first-party responder to expand a complex accessibility hierarchy. In this case, the responder continued expensive work after the requesting process returned and reached a footprint far beyond physical memory. The behavior is conceptually consistent with uncontrolled resource consumption, but I do not assign CWE-400 as a definitive root-cause mapping because MITRE cautions against using that high-level category when a more specific implementation weakness is known (MITRE, 2026). Here, the implementation weakness is not yet known.
+The narrow finding is a local availability primitive. Code already running under the logged-in user, with the required Automation and Accessibility grants, can ask a first-party responder to expand a complex accessibility hierarchy. In this case, the responder continued expensive work after the requesting process returned and reached a footprint far beyond physical memory. The behavior aligns conceptually with uncontrolled resource consumption. CWE-400 remains a high-level descriptor; MITRE recommends the most specific available implementation weakness, and Apple's closed source leaves that weakness unknown (MITRE, 2026).
 
-Agent systems make this primitive more consequential because they can connect untrusted content to tools. OWASP describes both direct and indirect prompt injection, including hidden or obfuscated instructions, and recommends constrained behavior, least privilege, separation of untrusted content, and human approval for high-impact actions (OWASP Foundation, 2025). The incident did not establish prompt injection, but it established the dangerous downstream half: an agent-generated command, an already authorized automation surface, and a first-party process that failed under an expansive request.
+Agent systems make this primitive more consequential because they can connect untrusted content to tools. OWASP describes both direct and indirect prompt injection, including hidden or obfuscated instructions, and recommends constrained behavior, least privilege, separation of untrusted content, and human approval for high-impact actions (OWASP Foundation, 2025). This incident establishes the dangerous downstream half: an agent-generated command, an already authorized automation surface, and a first-party process that failed under an expansive request. Prompt origin remains unknown.
 
 The safe threat chain is:
 
@@ -169,11 +169,11 @@ data access -> bounded staging -> independently governed egress
                                 +-> separate resource-exhaustion distraction
 ```
 
-The separation matters. Blocking `System Events` recursion does not control network egress, and blocking network egress does not prevent local denial of service. A secure agent runtime needs both.
+The separation matters. Resource containment governs local availability; egress policy governs outbound transfer. A secure agent runtime needs both.
 
 ### The Backspace boundary
 
-My separate Backspace Gate work showed that a terminal recording can preserve echoed bytes for a draft that is later visually erased even when canonical line editing delivers only the committed line to the child process (McCoy & Blu, 2026). That result motivates byte-level evidence preservation and an escaped code-point view. It does not establish that Outlook, a cloud model, or the agent in this incident received erased text. Terminal display, recorder output, process input, model input, model output, and tool execution remain distinct evidence layers.
+My separate Backspace Gate work showed that a terminal recording can preserve echoed bytes for a draft that is later visually erased even when canonical line editing delivers only the committed line to the child process (McCoy & Blu, 2026). That result motivates byte-level evidence preservation and an escaped code-point view. Its measured scope is the terminal recorder boundary. Delivery of erased text into Outlook, a cloud model, or this agent workflow was unmeasured. Terminal display, recorder output, process input, model input, model output, and tool execution remain distinct evidence layers.
 
 ### Defensive controls
 
@@ -192,25 +192,25 @@ Apple's responder can provide the final containment layer. Each inbound event sh
 - **Diagnostic privacy:** raw CPU, jetsam, and sysdiagnose artifacts can expose unrelated process and machine information.
 - **Monitoring fragility:** an in-process monitor may fail with the workload it is meant to contain; the watchdog needs an independent control path.
 - **Version uncertainty:** the current production observation is on 27.0.1, while 27.2 remains untested.
-- **Target variability:** Outlook's accessibility hierarchy may not represent other applications, UI states, or data volumes.
+- **Target variability:** generalizability to other applications, UI states, and data volumes remains unmeasured.
 
 ### Disclosure and bounty readiness
 
-Apple's Security Bounty guidelines ask for a clear, actionable report with reliable reproduction and testing on the latest publicly available software (Apple Security Research, n.d.). This repository contains strong diagnostics, recurrence, command attribution, a disabled trigger shape, and proposed regression tests. It is ready for private Apple triage. It is not yet a complete bounty-validation package because the latest public macOS release has not been tested and the packaged trigger was not replayed under a controlled lab protocol.
+Apple's Security Bounty guidelines ask for a clear, actionable report with reliable reproduction and testing on the latest publicly available software (Apple Security Research, n.d.). This repository contains strong diagnostics, recurrence, command attribution, a disabled trigger shape, and proposed regression tests. It is ready for private Apple triage. Latest-release validation and controlled lab replay remain the two missing elements for a stronger bounty package.
 
-I would submit the evidence privately now if the goal is early vendor notice, while describing 27.2 status as unknown. A stronger bounty package would add one bounded reproduction on a disposable Mac running the latest public release, a narrow-query negative control, an independent watchdog trace, and confirmation that terminating the caller does or does not cancel responder work. I would not perform that experiment on this production Mac.
+I would submit the evidence privately now for early vendor notice and report 27.2 status as unknown. A stronger bounty package would add one bounded reproduction on a disposable Mac running the latest public release, a narrow-query negative control, an independent watchdog trace, and measurement of responder cancellation after caller termination. This production Mac is excluded from active replay.
 
 ### Limitations
 
-This study contains two episodes on one Mac, one operating-system build, one target application, and one local user session. The query sequence was not factorially controlled. The first and second measured endpoints differ substantially, and the later jetsam records are not continuous samples from the CPU-report intervals. The raw artifacts remain private and therefore are not independently reviewable from this repository alone.
+This study contains two episodes on one Mac, one operating-system build, one target application, and one local user session. The query sequence lacked factorial control. The first and second measured endpoints differ substantially, and the later jetsam records were recorded outside the CPU-report intervals. Raw artifacts remain private, limiting independent review to the sanitized record until vendor disclosure.
 
-Apple's relevant source is closed. Stack symbols support a mechanism hypothesis but not a source-level root cause. The 27.2 advisory review can establish only that the public advisory does not name this issue; it cannot establish whether an unlisted change repaired it. The incident record does not preserve network telemetry sufficient to exclude every unrelated transfer on the machine, although no evidence tied exfiltration to this event. Finally, the coding agent's generation of unsafe commands does not establish that untrusted content caused it to do so.
+Apple's relevant source is closed, leaving the source-level root cause unknown. The 27.2 advisory review found zero named entry; unlisted implementation changes remain outside public visibility. Incident-window network telemetry was unavailable. The coding agent generated the unsafe commands, while upstream prompt provenance remains unknown.
 
 ## Conclusion
 
 A local coding-agent workflow issued broad Outlook accessibility requests through `System Events` on macOS 27.0.1. Apple's first diagnostic measured the responder growing from 15.48 MB to a reported 187.76 GB footprint in 111.742 seconds, a normalized 12,420.30-fold increase and 7.82 times installed physical memory. A fresh process later reproduced the same stack family, and the two jetsam records reached 222.55 and 253.91 GiB accounting values.
 
-The supported outcome is severe local resource exhaustion in a first-party automation responder. The exact defect, affected-version range, prompt-injection origin, and repair status remain unknown. The memory number is not an exfiltration measurement. The broader security lesson is still concrete: an agent that combines untrusted content, powerful local automation, retry behavior, and concentrated permissions can turn an ordinary troubleshooting request into system-wide availability loss. Narrow query design, explicit budgets, independent monitoring, separated capabilities, and fail-closed egress controls would materially reduce that risk today.
+The supported outcome is severe local resource exhaustion in a first-party automation responder. The exact defect, affected-version range, prompt-injection origin, and repair status remain unknown. Apple's 187.76 GB value quantifies process footprint; outbound byte volume was unmeasured. The broader security lesson is concrete: an agent that combines untrusted content, powerful local automation, retry behavior, and concentrated permissions can turn an ordinary troubleshooting request into system-wide availability loss. Narrow query design, explicit budgets, independent monitoring, separated capabilities, and fail-closed egress controls would materially reduce that risk today.
 
 ## Declarations
 
@@ -224,7 +224,7 @@ OpenAI Codex assisted with read-only forensic inspection, arithmetic reproductio
 
 ### Safety and ethics
 
-I did not execute the disabled trigger while preparing this repository, did not access another person's account or data, and did not include real data collection, persistence, destructive action, or network egress in the simulation. The affected production Mac was left on macOS 27.0.1 at my request and remains unsuitable for active replay.
+Safety actions: the disabled trigger remained unexecuted; review stayed within the owner's account and data; simulation capability stayed limited to fixed synthetic input and fail-closed stubs. The affected production Mac was left on macOS 27.0.1 at my request and remains unsuitable for active replay.
 
 ### Competing interests
 

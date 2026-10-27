@@ -1,9 +1,9 @@
 # Review-only reproduction material
 
-This directory is for coordinated disclosure. It does not contain malware, persistence, exfiltration logic, or a production-safe active reproducer.
+This directory has review-only scope for coordinated disclosure. Its operational surface consists of inert trigger text and a dry harness; persistence, collection, egress, and active production reproduction are absent.
 
 - `trigger.applescript.disabled.txt` records the minimal hazardous query shape as inert text.
-- `bounded-repro.sh` performs a dry review only: it verifies that the defensive linter rejects the trigger. It never invokes `osascript`.
+- `bounded-repro.sh` performs a dry review: it verifies that the defensive linter rejects the trigger while `osascript` invocation remains disabled.
 
 Run the safe review from the repository root:
 

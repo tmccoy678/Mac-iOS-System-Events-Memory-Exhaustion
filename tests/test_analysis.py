@@ -44,7 +44,7 @@ class AnalysisTests(unittest.TestCase):
         )
         self.assertEqual(2, self.metrics["sample_size_episodes"])
         self.assertEqual("descriptive-only", self.metrics["statistical_scope"])
-        self.assertIn("not sampled", self.metrics["rate_caveat"])
+        self.assertIn("unmeasured", self.metrics["rate_caveat"])
 
 
 if __name__ == "__main__":

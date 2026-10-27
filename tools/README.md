@@ -6,4 +6,4 @@
 python3 tools/lint_system_events.py path/to/proposed-script
 ```
 
-Exit status is `0` when no guarded pattern is found, `2` when review is required, and `64` for usage or read errors. This is a heuristic client-side control, not an Apple patch and not a substitute for runtime containment.
+Exit status is `0` when no guarded pattern is found, `2` when review is required, and `64` for usage or read errors. Scope: heuristic client-side preflight. Runtime containment and Apple-side remediation remain necessary.

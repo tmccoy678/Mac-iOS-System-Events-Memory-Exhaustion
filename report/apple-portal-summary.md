@@ -17,7 +17,7 @@ A new `System Events` process reached the same stack family after the broad quer
 
 ## Expected behavior
 
-A broad or cyclic accessibility hierarchy should complete within a resource budget or return a bounded error. Cancellation or caller exit should stop outstanding work. `System Events` should remain responsive and should not drive system-wide compression, swap, and jetsam pressure.
+A broad or cyclic accessibility hierarchy should complete within a resource budget or return a bounded error. Cancellation or caller exit should stop outstanding work. `System Events` should remain responsive under memory pressure.
 
 ## Minimal reproduction shape
 
@@ -28,20 +28,20 @@ A broad or cyclic accessibility hierarchy should complete within a resource budg
 5. Observe `System Events` CPU, resident memory, and stack samples. Stop immediately on abnormal growth.
 6. Relaunch `System Events` and repeat once to confirm fresh-process recurrence.
 
-The packaged trigger is disabled and was not replayed during report preparation. The incident itself produced two recorded runs. Raw diagnostics and a sanitized command timeline are available.
+The packaged trigger remains disabled. Report preparation used the two incident runs, raw diagnostics, and sanitized command timeline without replay.
 
 ## Security impact and prerequisites
 
-The demonstrated impact is local denial of service through uncontrolled resource consumption in a first-party responder. Local code execution and existing Automation and Accessibility authorization are required. An automation-capable agent that mistakes untrusted document or message text for instructions is a plausible delivery path, but prompt injection was not observed in this incident.
+The demonstrated impact is local denial of service through uncontrolled resource consumption in a first-party responder. Local code execution and existing Automation and Accessibility authorization are required. An automation-capable agent that mistakes untrusted document or message text for instructions is a plausible delivery path. Prompt origin for the recorded commands remains unknown.
 
-The 187.76 GB value is process footprint, not a measure of Outlook data read or transmitted. There is no evidence here of exfiltration, memory corruption, privilege escalation, or remote code execution.
+Apple's 187.76 GB value records process footprint. Incident-window network telemetry and source-level memory-safety evidence were unavailable.
 
-A separate malicious component with data access and outbound transport could use the resource-exhaustion effect to impair monitoring or disrupt response while attempting exfiltration. That is a plausible chained-risk scenario, not an observed event or a capability conferred by the memory-exhaustion defect itself.
+A separate malicious component with data access and outbound transport could use the resource-exhaustion effect to impair monitoring or disrupt response while attempting exfiltration. This chained-risk scenario requires separate collection, staging, and egress capabilities.
 
 ## Root-cause evidence
 
-Both runs repeatedly sampled `System Events + 10792`, followed by Foundation's `-[NSScriptClassDescription keyWithAppleEventCode:]` and `_propertyDescriptionForAppleEventCode:checkSubclasses:`. Other samples traverse Cocoa scripting object-specifier and descriptor construction. This supports an unbounded recursion or repeated-expansion failure in the responder's scripting bridge, but Apple's closed source prevents a source-level conclusion.
+Both runs repeatedly sampled `System Events + 10792`, followed by Foundation's `-[NSScriptClassDescription keyWithAppleEventCode:]` and `_propertyDescriptionForAppleEventCode:checkSubclasses:`. Other samples traverse Cocoa scripting object-specifier and descriptor construction. This supports an unbounded recursion or repeated-expansion failure in the responder's scripting bridge. Apple's closed source leaves the exact failed invariant unknown.
 
 ## Version status
 
-macOS 27.2 was released on 2026-10-26 but has not been installed or tested on the affected production Mac. Its public security advisory does not name `System Events`, AppleScript, or Automation for this trigger. The affected range and fixed release are unknown.
+macOS 27.2 was released on 2026-10-26 and remains untested on the affected production Mac. Its public security advisory contains zero `System Events`, AppleScript, or Automation entry for this trigger. The affected range and fixed release are unknown.

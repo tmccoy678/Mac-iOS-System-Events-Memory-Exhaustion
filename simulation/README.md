@@ -1,6 +1,6 @@
 # Non-deployable agent threat simulation
 
-This directory models the boundaries of a hypothetical prompt-injection, resource-exhaustion, and exfiltration chain without implementing the chain.
+This directory models the trust boundaries of a hypothetical prompt-injection, resource-exhaustion, and exfiltration chain. Every dangerous capability terminates at a fail-closed stub.
 
 ```text
 synthetic untrusted text
@@ -11,7 +11,7 @@ synthetic untrusted text
   -> blocked network-egress stub
 ```
 
-The implementation has no filesystem collector, application API, `subprocess` call, Apple-event invocation, socket, HTTP client, credential path, destination, persistence, or destructive action. Its three dangerous capability functions raise `CapabilityIntentionallyOmitted` if called.
+The module imports only argument parsing, hashing, JSON serialization, and sequence typing. Real data access, process execution, Apple events, network egress, credentials, persistence, and destructive action are represented by three functions that raise `CapabilityIntentionallyOmitted` when called.
 
 Run the safe model and tests:
 
@@ -20,4 +20,4 @@ python3 simulation/nondeployable_chain.py --json
 python3 -m unittest tests/test_threat_simulation.py -v
 ```
 
-The fixed fixture is `DEMO-RECORD-NOT-PRIVATE`. This is a defensive architecture example, not malware, an exploit, or evidence that prompt injection or exfiltration occurred.
+The fixed fixture is `DEMO-RECORD-NOT-PRIVATE`. Purpose: defensive architecture review of capability separation and fail-closed behavior.

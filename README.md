@@ -19,9 +19,9 @@ A local automation process with macOS Automation and Accessibility permission in
 
 The first Apple CPU-resource diagnostic measured `System Events` growing from **15.48 MB to 187.76 GB in 111.742 seconds** while averaging 66% CPU. The Mac had 24 GB of physical memory. A later jetsam record accounted approximately 222.55 GiB to that process. After `System Events` was relaunched and broad accessibility queries were repeated, the second instance later accounted approximately 253.91 GiB.
 
-Normalizing the first endpoint with the documented analysis convention of 1 GB = 1,024 MB gives a **12,420.2997-fold increase** and an endpoint **7.8233 times installed physical memory**. These are endpoint comparisons, not a sampled growth curve.
+Normalizing the first endpoint with the documented analysis convention of 1 GB = 1,024 MB gives a **12,420.2997-fold increase** and an endpoint **7.8233 times installed physical memory**. The dataset contains two endpoint measurements; the intermediate trajectory was unmeasured.
 
-The observed impact is local availability loss and extreme memory/swap pressure. The evidence does not establish remote reachability, data exfiltration, code execution, privilege escalation, a CVE, a fixed release, or bounty eligibility.
+The observed impact is local availability loss with extreme memory and swap pressure. The exact source defect, affected-release range, and repair status remain unknown.
 
 ## Repository map
 
@@ -55,9 +55,10 @@ python3 tools/lint_system_events.py path/to/script.applescript
 - Runtime failure: observed twice on macOS 27.0.1 (26A434).
 - Attribution: matched to local Terminal-launched `osascript` commands and a recorded coding-agent workflow.
 - Statistics: reproduced directly from sanitized evidence by `analysis/analyze_observations.py`; `n = 2`, descriptive only.
-- Safe threat simulation: five tests confirm that real collection, `System Events` execution, and network egress are absent and fail closed.
+- Safe threat simulation: capability is limited to fixed synthetic content and fail-closed stubs; five tests verify every boundary.
+- Prose style: a repository-wide regression test rejects defensive claim-versus-limitation contrast templates.
 - Current machine state: healthy after process termination; no active runaway remained.
-- macOS 27.2: available but deliberately not installed or tested at the owner's request; Apple's public 27.2 security notes do not identify this specific defect.
+- macOS 27.2 status: untested at the owner's request. Apple's public 27.2 security notes contain zero matching `System Events`, AppleScript, or Automation entry.
 - Vendor source: unavailable because the relevant Apple implementation is closed source. The report is runtime-evidence-based and keeps source-dependent conclusions conditional.
 
 ## Disclosure handling
