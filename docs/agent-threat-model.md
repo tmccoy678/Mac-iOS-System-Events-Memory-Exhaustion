@@ -76,6 +76,12 @@ Defenses must therefore cover both halves of the chain: out-of-band resource mon
 
 The supported incident conclusion remains local availability impact. This repository contains no malware implementation or exfiltration procedure.
 
+## Reviewable non-deployable model
+
+[`simulation/nondeployable_chain.py`](../simulation/nondeployable_chain.py) makes the hypothetical stages concrete without implementing harmful capabilities. It uses one fixed non-secret fixture, exposes a U+200B zero-width character in an escaped view, and records a `content-is-data` policy decision. Real data access, `System Events` invocation, and network egress are separate functions that only raise `CapabilityIntentionallyOmitted`.
+
+This structure lets a reviewer verify the intended security boundaries and tests without receiving a working exploit, malware sample, collector, or exfiltration path. See [`simulation/README.md`](../simulation/README.md).
+
 ## Additional holes to close
 
 - **Retry amplification:** a controller can relaunch the responder and reproduce the pressure after a failed attempt.

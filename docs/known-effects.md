@@ -17,6 +17,8 @@ At 12:38:18 CDT:
 - encrypted swap use was 1,877.12 MB of 3,072 MB; and
 - macOS remained 27.0.1 (26A434).
 
+At 12:54:55 CDT, a second read-only check again found no `System Events` process. macOS still reported 27.0.1 (26A434), system-wide memory was 78% free, and encrypted swap use had fallen to 1,219.19 MB of 2,048 MB.
+
 No operating-system update, security patch, permission change, or active reproducer was applied during this investigation.
 
 ## Findings not supported by the evidence

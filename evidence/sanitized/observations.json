@@ -13,6 +13,11 @@
     "system_events_build": "607",
     "page_size_bytes": 16384
   },
+  "recorded_trigger_context": {
+    "first_broad_query_executed_at": "2026-10-27T11:12:34.866-05:00",
+    "second_broad_query_executed_at": "2026-10-27T11:21:00.713-05:00",
+    "interpretation": "timestamps establish temporal association, not source-level causation"
+  },
   "first_process": {
     "pid": 40483,
     "cpu_resource_report": {
