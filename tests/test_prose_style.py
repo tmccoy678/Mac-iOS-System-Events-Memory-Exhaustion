@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).parents[1]
-HUMAN_FACING_SUFFIXES = {".cff", ".json", ".md", ".R", ".txt"}
+HUMAN_FACING_SUFFIXES = {".cff", ".json", ".md", ".mmd", ".R", ".txt"}
 DISALLOWED_TOKEN_GROUPS = (
     ("evidence", "does", "not"),
     ("record", "does", "not"),

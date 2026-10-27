@@ -11,6 +11,7 @@ Private coordinated-disclosure case study and Apple-ready report for an availabi
 - [`CASE_STUDY.md`](CASE_STUDY.md) — full first-person manuscript with abstract, introduction, methods, data analysis and statistics, results, discussion, conclusion, declarations, and APA citations.
 - [`report/system-events-memory-exhaustion.md`](report/system-events-memory-exhaustion.md) — concise vendor-facing vulnerability report.
 - [`report/apple-portal-summary.md`](report/apple-portal-summary.md) — short submission text for Apple's portal.
+- [`proposed-patch/cooperative-pause-drain-resume.md`](proposed-patch/cooperative-pause-drain-resume.md) — cooperative recovery patch recommendation for Apple and automation clients.
 - [`REFERENCES.md`](REFERENCES.md) — APA-formatted references; the source-reading ledger records the complete-reading rule used for citation.
 
 ## What happened
@@ -34,6 +35,7 @@ The observed impact is local availability loss with extreme memory and swap pres
 - `analysis/` — reproducible descriptive-statistics script.
 - `figures/` — source data, reproducible generator, SVG, and PNG.
 - `poc/` — disabled trigger text and a non-executing review harness. **Do not execute the trigger on a production Mac.**
+- `proposed-patch/` — cooperative pause–drain–resume patch recommendation, state machine, pseudocode, and validation plan.
 - `simulation/` — non-deployable model with fixed synthetic data and fail-closed stubs for every dangerous capability.
 - `tools/lint_system_events.py` — heuristic guard against the unbounded automation patterns involved here.
 - `tests/` — regression tests for the linter, analysis, and safe simulation.

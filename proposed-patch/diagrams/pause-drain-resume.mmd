@@ -1,0 +1,21 @@
+flowchart TD
+    A[Apple event accepted] --> B[RUNNING<br/>Process one bounded batch]
+    B --> L{Work complete?}
+    L -->|Yes| M[COMPLETED<br/>Return result and release context]
+    L -->|No| C{Pause signal?}
+    C -->|No| D[Checkpoint completed batch]
+    D --> B
+    C -->|Yes| E[PAUSE_REQUESTED<br/>Stop new object discovery]
+    E --> F[DRAINING<br/>Release one cleanup slice]
+    F --> G[Drain autorelease pool<br/>Yield to run loop]
+    G --> H{Compact paused state reached?}
+    H -->|No| F
+    H -->|Yes| I[PAUSED<br/>Retain queue, cursor, and visited summary]
+    I --> J{Low-water stable and resume requested?}
+    J -->|Wait| I
+    J -->|Resume| K[RESUMING<br/>Restore and validate checkpoint]
+    K --> B
+    B -. Emergency ceiling .-> O[EMERGENCY_FROZEN<br/>Preserve requester, responder, and checkpoint]
+    F -. Emergency ceiling .-> O
+    O --> P[Operator-directed resume or clean restart]
+    P --> F

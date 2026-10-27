@@ -80,6 +80,8 @@ Any future active validation should occur only on a disposable Mac with an indep
 
 The following is proposed behavioral remediation. An upstream code patch requires Apple's private implementation and engineering validation.
 
+The complete [`cooperative pause–drain–resume proposal`](../proposed-patch/cooperative-pause-drain-resume.md) defines the request state machine, checkpoint model, incremental cleanup behavior, emergency freeze, client compatibility layer, and validation criteria.
+
 System Events and the underlying Cocoa scripting path should treat each inbound Apple event as a resource-bounded transaction. During object-specifier evaluation and descriptor construction, the implementation should track object identity and active traversal state so that cycles and repeated expansion terminate deterministically. It should enforce conservative limits on recursion depth, visited-object count, result count, descriptor size, elapsed time, and per-request allocation. A limit breach should cancel the request, release intermediate objects, return a bounded error to the sender, and leave System Events responsive.
 
 The property-code path should also guard superclass and subclass traversal used by `keyWithAppleEventCode:` against cycles or repeated visits. Negative lookups should not repeatedly rebuild the same metadata graph. Work should be tied to the requesting Apple event's lifetime so that sender exit or cancellation stops outstanding evaluation, and memory-pressure notifications should provide a fail-safe cancellation path before swap is exhausted. Broad operations such as `entire contents` and bulk `properties` should be lazy, paginated, or rejected when their expansion cannot satisfy the request budget.

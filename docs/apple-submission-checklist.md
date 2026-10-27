@@ -20,10 +20,11 @@ Apple's current [Security Bounty guidelines](https://security.apple.com/bounty/g
 1. `report/apple-portal-summary.md`
 2. `report/system-events-memory-exhaustion.md`
 3. `CASE_STUDY.md` and `REFERENCES.md` as supporting analysis
-4. the disabled trigger and review-only harness from `poc/`
-5. `evidence/sanitized/observations.json`
-6. the two CPU-resource diagnostics and two jetsam reports in a separately encrypted attachment
-7. a short screen recording only if a safe disposable-system reproduction is completed
+4. `proposed-patch/cooperative-pause-drain-resume.md`
+5. the disabled trigger and review-only harness from `poc/`
+6. `evidence/sanitized/observations.json`
+7. the two CPU-resource diagnostics and two jetsam reports in a separately encrypted attachment
+8. a short screen recording only if a safe disposable-system reproduction is completed
 
 Apple recommends a password-protected attachment for exploit material. Share the password exclusively through the report's private communication channel.
 
