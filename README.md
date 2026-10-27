@@ -12,6 +12,7 @@ Private coordinated-disclosure case study and Apple-ready report for an availabi
 - [`report/system-events-memory-exhaustion.md`](report/system-events-memory-exhaustion.md) — concise vendor-facing vulnerability report.
 - [`report/apple-portal-summary.md`](report/apple-portal-summary.md) — short submission text for Apple's portal.
 - [`proposed-patch/cooperative-pause-drain-resume.md`](proposed-patch/cooperative-pause-drain-resume.md) — cooperative recovery patch recommendation for Apple and automation clients.
+- [`mitigation/README.md`](mitigation/README.md) — deployed client-side blocker, memory watchdog, LaunchAgent, installer, and operating notes.
 - [`REFERENCES.md`](REFERENCES.md) — APA-formatted references; the source-reading ledger records the complete-reading rule used for citation.
 
 ## What happened
@@ -36,6 +37,7 @@ The observed impact is local availability loss with extreme memory and swap pres
 - `figures/` — source data, reproducible generator, SVG, and PNG.
 - `poc/` — disabled trigger text and a non-executing review harness. **Do not execute the trigger on a production Mac.**
 - `proposed-patch/` — cooperative pause–drain–resume patch recommendation, state machine, pseudocode, and validation plan.
+- `mitigation/` — deployable Codex hook and independent `System Events` memory containment used on the affected Macs.
 - `simulation/` — non-deployable model with fixed synthetic data and fail-closed stubs for every dangerous capability.
 - `tools/lint_system_events.py` — heuristic guard against the unbounded automation patterns involved here.
 - `tests/` — regression tests for the linter, analysis, and safe simulation.
@@ -52,12 +54,19 @@ Run the local heuristic guard before accepting AppleScript or JXA automation:
 python3 tools/lint_system_events.py path/to/script.applescript
 ```
 
+Install the deployed runtime containment package on an affected Mac:
+
+```sh
+./mitigation/install.sh
+```
+
 ## Validation status
 
 - Runtime failure: observed twice on macOS 27.0.1 (26A434).
 - Attribution: matched to local Terminal-launched `osascript` commands and a recorded coding-agent workflow.
 - Statistics: reproduced directly from sanitized evidence by `analysis/analyze_observations.py`; `n = 2`, descriptive only.
 - Safe threat simulation: capability is limited to fixed synthetic content and fail-closed stubs; five tests verify every boundary.
+- Runtime containment: deployed and verified on the owner's Mac Studio and 2026 MacBook Pro; the pre-tool hook blocks the recorded query shape and the five-second LaunchAgent enforces a 1 GiB responder ceiling.
 - Prose style: a repository-wide regression test rejects defensive claim-versus-limitation contrast templates.
 - Current machine state: healthy after process termination; no active runaway remained.
 - macOS 27.2 status: untested at the owner's request. Apple's public 27.2 security notes contain zero matching `System Events`, AppleScript, or Automation entry.

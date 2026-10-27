@@ -27,6 +27,30 @@ All times below are local time in CDT (UTC-05:00) on 2026-10-27. The timeline co
 | 12:38:18 | No `System Events` process was running. macOS reported 83% system-wide memory free and 1,877.12 MB of encrypted swap in use. The installed OS remained 27.0.1 (26A434). | Read-only live check |
 | 12:54:55 | No `System Events` process was running. macOS reported 78% system-wide memory free and 1,219.19 MB of 2,048 MB encrypted swap in use. The installed OS remained 27.0.1 (26A434). | Read-only live check |
 
+## Same-day recurrence and containment deployment
+
+Later on 2026-10-27, a separate Codex workflow on the owner's Mac Studio issued
+an `osascript` command containing `entire contents` against Outlook. The exact
+requesting child process and its runaway `System Events` responder were stopped;
+the canonical Codex conversation process remained alive. Private Outlook content
+was excluded from the retained record.
+
+The recurrence matched the original hazardous command shape and motivated four
+deployed controls on both affected Macs:
+
+1. a Codex pre-tool hook that blocks unbounded `System Events` command shapes;
+2. an independent five-second LaunchAgent that terminates `System Events` at a
+   1 GiB resident-set ceiling;
+3. agent instructions requiring bounded selectors and forbidding retries of the
+   same unbounded query; and
+4. short Computer Use startup and tool timeouts so a missing authenticated broker
+   fails promptly.
+
+Post-deployment checks on both Macs found no active `System Events` or
+`osascript` process. Each LaunchAgent reported successful interval runs with a
+zero exit status. The deployable files and regression tests are preserved in
+[`mitigation/`](../mitigation/README.md).
+
 ## Attribution
 
 The direct trigger was the locally recorded automation sequence. Command provenance attributes the harmful action to agent-generated `osascript` requests. Earlier prompt provenance is unavailable, leaving prompt origin unknown.
