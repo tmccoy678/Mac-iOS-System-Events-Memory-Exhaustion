@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+
+# Raw Apple diagnostics remain local and outside this disclosure repository.
+raw-evidence/
+*.diag
+*.ips
+*.spindump
+*.sysdiagnose*
+
+# The bounded reproducer writes only to an OS temporary directory.
+repro-output/

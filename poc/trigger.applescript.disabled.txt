@@ -1,0 +1,13 @@
+-- REVIEW ONLY. DO NOT RENAME OR EXECUTE ON A PRODUCTION MAC.
+-- Minimal hazardous query shape retained for private vendor triage.
+
+tell application "System Events"
+    tell process "Microsoft Outlook"
+        set allElements to entire contents of front window
+        repeat with elementRef in allElements
+            try
+                set ignoredProperties to {role, subrole, name, description, value} of elementRef
+            end try
+        end repeat
+    end tell
+end tell

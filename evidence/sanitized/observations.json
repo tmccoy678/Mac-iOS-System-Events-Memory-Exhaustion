@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "incident_date_local": "2026-10-27",
+  "timezone": "-05:00",
+  "assessed_system": {
+    "product": "Mac17,2",
+    "chip": "Apple M5",
+    "physical_memory_bytes": 25769803776,
+    "physical_memory_gib": 24,
+    "os": "macOS 27.0.1",
+    "build": "26A434",
+    "system_events_version": "1.3.6",
+    "system_events_build": "607",
+    "page_size_bytes": 16384
+  },
+  "first_process": {
+    "pid": 40483,
+    "cpu_resource_report": {
+      "report_start": "2026-10-27T11:12:14.553-05:00",
+      "report_end": "2026-10-27T11:14:30.987-05:00",
+      "cpu_seconds": 90,
+      "cpu_window_seconds": 136,
+      "cpu_average_percent": 66,
+      "measured_interval_start": "2026-10-27T11:12:37.749-05:00",
+      "measured_interval_end": "2026-10-27T11:14:29.491-05:00",
+      "measured_interval_seconds": 111.742,
+      "footprint_start_reported": "15.48 MB",
+      "footprint_end_reported": "187.76 GB",
+      "stack_markers": [
+        "System Events + 10792",
+        "-[NSScriptClassDescription keyWithAppleEventCode:]",
+        "_propertyDescriptionForAppleEventCode:checkSubclasses:"
+      ]
+    },
+    "jetsam_report": {
+      "artifact_timestamp": "2026-10-27T11:35:32-05:00",
+      "rpages": 14584802,
+      "bytes_at_16384_per_page": 238957395968,
+      "gib_at_16384_per_page": 222.546417236328
+    }
+  },
+  "second_process": {
+    "pid": 41643,
+    "cpu_resource_report": {
+      "report_start": "2026-10-27T11:20:21.832-05:00",
+      "report_end": "2026-10-27T11:22:35.587-05:00",
+      "cpu_seconds": 90,
+      "cpu_window_seconds": 134,
+      "cpu_average_percent": 67,
+      "measured_interval_start": "2026-10-27T11:21:03.541-05:00",
+      "measured_interval_end": "2026-10-27T11:22:35.029-05:00",
+      "measured_interval_seconds": 91.488,
+      "footprint_start_reported": "110.64 MB",
+      "footprint_end_reported": "4248.64 MB",
+      "stack_markers": [
+        "System Events + 10792",
+        "-[NSScriptClassDescription keyWithAppleEventCode:]",
+        "_propertyDescriptionForAppleEventCode:checkSubclasses:"
+      ]
+    },
+    "jetsam_report": {
+      "artifact_timestamp": "2026-10-27T12:13:38-05:00",
+      "rpages": 16639984,
+      "rpages_bytes_at_16384_per_page": 272629497856,
+      "rpages_gib_at_16384_per_page": 253.906005859375,
+      "lifetime_max_pages": 16640096,
+      "lifetime_max_bytes_at_16384_per_page": 272631332864,
+      "lifetime_max_gib_at_16384_per_page": 253.90771484375
+    }
+  },
+  "source_artifacts": [
+    {
+      "kind": "cpu_resource",
+      "sha256": "118454acaf9b793e896a9ebba6b6049cd67bf7ffa8e2abbe558d3e9b17dcc0ef"
+    },
+    {
+      "kind": "cpu_resource",
+      "sha256": "bdc84d59e47b582aebff5766a7c6242d1b200a1c2a17adbb65d005471d535abe"
+    },
+    {
+      "kind": "jetsam",
+      "sha256": "0fa22f56939394aee7b4da4a3d053691f426429714743f4b9e9677d95dec6013"
+    },
+    {
+      "kind": "jetsam",
+      "sha256": "f4a35abede2cd48de057d856499502c665a503444813465be66dc4f29106bb14"
+    }
+  ],
+  "interpretation_boundary": {
+    "demonstrated_impact": "local availability loss through resource exhaustion",
+    "not_demonstrated": [
+      "remote reachability",
+      "malware installation",
+      "prompt injection in this incident",
+      "data exfiltration",
+      "memory corruption",
+      "privilege escalation",
+      "fixed release",
+      "bounty eligibility"
+    ]
+  }
+}
