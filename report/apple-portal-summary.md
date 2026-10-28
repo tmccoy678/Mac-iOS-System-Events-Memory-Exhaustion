@@ -11,9 +11,9 @@
 
 A local automation client with existing Automation and Accessibility authorization issued broad accessibility queries through `System Events`. A fresh `System Events` process remained active after the immediate caller returned and entered a deeply repeated scripting-class property-lookup stack.
 
-During the first run, Apple's CPU-resource diagnostic measured the process footprint growing from 15.48 MB to 187.76 GB between 11:12:37.749 and 11:14:29.491, a 111.742-second interval, at approximately 66% CPU. A later jetsam record accounted 14,584,802 resident pages at 16 KiB per page, or 222.5464 GiB.
+During the first run, Apple's CPU-resource diagnostic recorded footprint endpoints of 15.48 MB and 187.76 GB at 11:12:37.749 and 11:14:29.491, 111.742 seconds apart, at approximately 66% CPU. That spacing is not the growth duration. A separate jetsam snapshot recorded 14,584,802 pages at 16 KiB per page, or 222.5464 GiB, at an inferred 11:14:37.218. The final measured interval added 34.7864 GiB in 7.727 seconds, averaging 4.5019 GiB/s. Peak net growth was at least 4.5019 GiB/s; the exact peak remains unmeasured.
 
-A new `System Events` process reached the same stack family after the broad queries were repeated. Its CPU diagnostic measured 110.64 MB to 4,248.64 MB in 91.488 seconds, and a later jetsam record reported a 253.9077 GiB lifetime maximum.
+A new `System Events` process reached the same stack family after the broad queries were repeated. Its CPU diagnostic recorded endpoints of 110.64 MB and 4,248.64 MB 91.488 seconds apart, and a later jetsam record reported a 253.9077 GiB lifetime maximum. Its exact growth duration and peak remain unmeasured.
 
 ## Expected behavior
 

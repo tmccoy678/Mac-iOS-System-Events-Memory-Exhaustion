@@ -3,8 +3,9 @@
 ## Observed during the incident
 
 - Two separate `System Events` processes entered the same high-CPU recursive stack family after broad Outlook accessibility queries.
-- The first measured footprint grew from 15.48 MB to 187.76 GB in 111.742 seconds.
-- Later jetsam accounting reached 222.5464 GiB for the first process and a 253.9077 GiB lifetime maximum for the second.
+- The first CPU diagnostic recorded footprint endpoints of 15.48 MB and 187.76 GB, 111.742 seconds apart. That spacing is not the growth duration.
+- A separate jetsam snapshot placed the first process at 222.5464 GiB 7.727 seconds after the second CPU endpoint. The final measured interval added 34.7864 GiB at a 4.5019 GiB/s mean, establishing a 4.5019 GiB/s lower bound on peak net growth; the exact peak remains unmeasured.
+- Later jetsam accounting recorded a 253.9077 GiB lifetime maximum for the second process.
 - The jetsam artifacts record widespread `low-swap` pressure. Their aggregate histories leave the simultaneous kill set unknown.
 - The system experienced severe compression, swap, and transient disk-space pressure. User-file integrity status: no loss or corruption was reported; a comprehensive audit remains pending.
 

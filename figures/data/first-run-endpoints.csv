@@ -1,4 +1,0 @@
-kind,label,diagnostic_time,elapsed_seconds,reported_value,reported_unit,normalized_mib_assuming_1024,source
-endpoint,Start,11:12:37.749,0.000,15.48,MB,15.48,cpu_resource.diag Powerstats
-endpoint,End,11:14:29.491,111.742,187.76,GB,192266.24,cpu_resource.diag Powerstats
-reference,Installed physical memory,,,24,GB,24576,sysctl hw.memsize

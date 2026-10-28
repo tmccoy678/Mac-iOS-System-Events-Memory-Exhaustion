@@ -7,7 +7,7 @@ October 27, 2026
 
 ## Abstract
 
-I investigated an extreme memory event on a Mac17,2 with an Apple M5, 24 GB of physical memory, and macOS Golden Gate 27.0.1 (26A434). A local coding agent was inspecting Microsoft Outlook through AppleScript and JavaScript for Automation when it generated broad accessibility queries, including recursive `uiElements()` traversal and `entire contents` enumeration through Apple's `System Events` process. Apple's first CPU-resource diagnostic measured the process footprint increasing from 15.48 MB to 187.76 GB in 111.742 seconds while averaging 66% CPU. Under the unit normalization used in this study, that was a 12,420.30-fold endpoint increase and an endpoint equal to 7.82 times installed physical memory. A later jetsam record accounted 222.55 GiB to the process. After `System Events` was relaunched and broad queries were repeated, a fresh process entered the same stack family; its measured footprint rose from 110.64 MB to 4,248.64 MB in 91.488 seconds, and a later jetsam record reported a 253.91 GiB lifetime maximum. Both diagnostics repeatedly sampled one `System Events` offset followed by Foundation scripting-property lookup in `NSScriptClassDescription`.
+I investigated an extreme memory event on a Mac17,2 with an Apple M5, 24 GiB of physical memory, and macOS Golden Gate 27.0.1 (26A434). A local coding agent was inspecting Microsoft Outlook through AppleScript and JavaScript for Automation when it generated broad accessibility queries, including recursive `uiElements()` traversal and `entire contents` enumeration through Apple's `System Events` process. Apple's first CPU-resource diagnostic recorded process-footprint endpoints of 15.48 MB and 187.76 GB 111.742 seconds apart while averaging 66% CPU. That spacing is not the growth duration. Under the unit normalization used in this study, the second endpoint was 12,420.30 times the first and 7.82 times installed physical memory. A separate jetsam snapshot placed the same process at 222.5464 GiB 7.727 seconds after the second endpoint. The final measured interval added 34.7864 GiB at a 4.5019 GiB/s mean, so peak net growth was at least 4.5019 GiB/s; the exact peak remains unmeasured. After `System Events` was relaunched and broad queries were repeated, a fresh process entered the same stack family; its diagnostic recorded endpoints of 110.64 MB and 4,248.64 MB 91.488 seconds apart, and a later jetsam record reported a 253.91 GiB lifetime maximum. Both diagnostics repeatedly sampled one `System Events` offset followed by Foundation scripting-property lookup in `NSScriptClassDescription`.
 
 The evidence establishes a local availability failure associated with broad accessibility enumeration and unbounded scripting work. Apple's closed source leaves the exact failed invariant unknown. I model a plausible prompt-injection delivery chain because an agent with shell, Automation, Accessibility, and network authority could combine otherwise separate capabilities. The accompanying model is deliberately non-deployable: it uses one fixed synthetic record, surfaces a zero-width character, and replaces real data access, `System Events` execution, and network egress with fail-closed stubs. This case demonstrates why agent controllers need content/tool separation, narrow accessibility selectors, recursion and memory budgets, retry suppression, independent process monitoring, and egress controls that remain effective during local resource exhaustion.
 
@@ -15,7 +15,7 @@ The evidence establishes a local availability failure associated with broad acce
 
 ## Introduction
 
-At approximately 11:12 local time on October 27, 2026, a coding agent working in my logged-in session attempted to inspect Outlook's interface. The agent first used a narrow `System Events` query, then wrote a JavaScript for Automation helper that recursively called `uiElements()` to a nominal depth of six without a global node limit, cycle check, memory limit, or wall-clock budget. It next generated AppleScript using `entire contents of front window` and bulk property retrieval. Within the same interval, Apple's diagnostic system recorded `System Events` growing from megabytes to a reported 187.76 GB footprint.
+At approximately 11:12 local time on October 27, 2026, a coding agent working in my logged-in session attempted to inspect Outlook's interface. The agent first used a narrow `System Events` query, then wrote a JavaScript for Automation helper that recursively called `uiElements()` to a nominal depth of six without a global node limit, cycle check, memory limit, or wall-clock budget. It next generated AppleScript using `entire contents of front window` and bulk property retrieval. Apple's diagnostic system recorded `System Events` first at 15.48 MB and later at a reported 187.76 GB footprint, followed by a separate 222.5464 GiB jetsam snapshot.
 
 The number was startling because the Mac contained 24 GB of physical memory. Process footprint can exceed physical RAM through virtual-memory accounting, compression, swap, and retained allocation. I therefore treated 187.76 GB as Apple's memory-accounting value and analyzed network activity as a separate measurement domain. The central empirical questions were direct: what local process entered the runaway state, which recorded actions preceded it, did the behavior recur in a fresh process, and what security boundary failed?
 
@@ -78,22 +78,31 @@ For a diagnostic endpoint reported in GB, I normalized the reported units using 
 normalized endpoint / starting endpoint
 ```
 
-The endpoint-derived mean change was:
+The diagnostic endpoint-derived whole-window mean was:
 
 ```text
-(normalized endpoint - starting endpoint) / measured interval seconds
+(normalized endpoint - starting endpoint) / endpoint spacing seconds
 ```
 
-That quantity summarizes two endpoints. Intermediate allocation behavior was unmeasured, so I report it as an endpoint-derived mean change. The physical-memory multiple was the reported endpoint or jetsam GiB value divided by 24 GiB. The mean trigger-to-measurement lag was calculated from the two matched command and interval-start timestamps. [`analysis/analyze_observations.py`](analysis/analyze_observations.py) reproduces every derived value from the sanitized JSON.
+The 111.742 seconds is spacing between the two CPU-diagnostic endpoints, not the growth duration. That whole-window quantity summarizes two endpoints and is not used as the burst rate. The separate jetsam snapshot supplies a tighter measured interval:
+
+```text
+(222.546417236328 GiB - 187.76 GiB) / 7.727 seconds
+= 4.501930534 GiB/s
+```
+
+The 7.727-second interval mean establishes a 4.5019 GiB/s lower bound on peak net growth. Intermediate allocation behavior and the exact peak were unmeasured. The physical-memory multiple was the reported endpoint or jetsam GiB value divided by 24 GiB. The mean trigger-to-measurement lag was calculated from the two matched command and interval-start timestamps. [`analysis/analyze_observations.py`](analysis/analyze_observations.py) reproduces every derived value from the sanitized JSON.
 
 | Measure | Episode 1 | Episode 2 |
 | --- | ---: | ---: |
 | Starting footprint | 15.48 MB | 110.64 MB |
 | Measured endpoint | 187.76 GB | 4,248.64 MB |
 | Normalized endpoint (1 GB = 1,024 MB) | 192,266.24 MB | 4,248.64 MB |
-| Measured interval | 111.742 s | 91.488 s |
+| CPU-endpoint spacing | 111.742 s | 91.488 s |
 | Growth multiple | 12,420.2997× | 38.4006× |
-| Endpoint-derived mean change | 1,720.4879 MB/s | 45.2300 MB/s |
+| Whole-window endpoint mean | 1,720.4879 MB/s | 45.2300 MB/s |
+| Final measured interval | 7.727 s | unavailable |
+| Final measured-interval mean | 4.5019 GiB/s | unavailable |
 | Endpoint / physical memory | 7.8233× | 0.1729× |
 | Average CPU in diagnostic | 66% | 67% |
 | Broad-query-to-measurement lag | 2.883 s | 2.828 s |
@@ -101,9 +110,9 @@ That quantity summarizes two endpoints. Intermediate allocation behavior was unm
 
 The arithmetic mean of the two diagnostic CPU averages was 66.5%. The mean temporal lag was 2.8555 seconds. Both episodes showed the same three selected stack markers. Population reliability and prevalence remain unestimated.
 
-![System Events footprint grew from 15.48 MB to 187.76 GB in 111.742 seconds](figures/system-events-footprint.png)
+![Three recorded System Events footprint measurements; the final measured interval averaged 4.50 GiB/s](figures/system-events-footprint.png)
 
-**Figure 1.** Recorded first-episode endpoints. The dashed connector visually links them; intermediate trajectory was unmeasured. The right panel compares the reported endpoint with installed physical memory.
+**Figure 1.** Three recorded first-episode footprint measurements. The CPU endpoints are 111.742 seconds apart; the jetsam snapshot follows the second endpoint by 7.727 seconds. Dashed connectors are visual guides, and intermediate trajectory was unmeasured. The right panel compares the jetsam snapshot with installed physical memory.
 
 ## Results
 
@@ -113,6 +122,8 @@ The arithmetic mean of the two diagnostic CPU averages was 66.5%. The mean tempo
 
 **Observed.** The later jetsam record identified the same PID at 14,584,802 resident pages. At the report's 16 KiB page size, that equals 222.5464 GiB, or 9.2728 times installed physical memory.
 
+**Derived.** Subtracting the jetsam report's 1,255,592-millisecond `timeDelta` from its 11:35:32.810 report time gives an inferred snapshot time of 11:14:37.218. This is 7.727 seconds after the 187.76 GB CPU endpoint and 1.197 seconds before logged process closure. The footprint increased 34.7864 GiB across that final measured interval, averaging 4.5019 GiB/s. Peak net growth was at least 4.5019 GiB/s; the exact peak and the earlier burst profile remain unmeasured.
+
 ### 2. The diagnostic stack repeatedly crossed the scripting-property path
 
 **Observed.** The first heaviest stack contained many consecutive frames at `System Events + 10792`, followed by `-[NSScriptClassDescription keyWithAppleEventCode:]` and `_propertyDescriptionForAppleEventCode:checkSubclasses:`. Other samples passed through `NSAppleEventManager`, `NSScriptingAppleEventHandler`, repeated script-object-specifier evaluation, and descriptor construction.
@@ -121,13 +132,13 @@ The arithmetic mean of the two diagnostic CPU averages was 66.5%. The mean tempo
 
 ### 3. A fresh process reproduced the same stack family
 
-**Observed.** After the first responder was terminated, new `System Events` PID 41643 received repeated broad Outlook queries. Its diagnostic measured 110.64 MB to 4,248.64 MB in 91.488 seconds at approximately 67% CPU. The selected stack markers matched Episode 1. A later jetsam record reported 16,639,984 resident pages and a lifetime maximum of 16,640,096 pages, equal to 253.9060 and 253.9077 GiB.
+**Observed.** After the first responder was terminated, new `System Events` PID 41643 received repeated broad Outlook queries. Its diagnostic recorded 110.64 MB and 4,248.64 MB at endpoints 91.488 seconds apart while averaging approximately 67% CPU. The selected stack markers matched Episode 1. A later jetsam record reported 16,639,984 resident pages and a lifetime maximum of 16,640,096 pages, equal to 253.9060 and 253.9077 GiB.
 
 **Inferred.** Fresh-process recurrence implicates the broad query and target interaction independent of first-process history. General reproducibility across systems and applications remains unknown.
 
 ### 4. The recorded agent workflow supplied the direct trigger sequence
 
-**Observed.** The local workflow generated recursive `uiElements()` traversal, `entire contents of front window`, bulk property retrieval, and retries. These commands preceded both measured intervals and originated during Outlook troubleshooting.
+**Observed.** The local workflow generated recursive `uiElements()` traversal, `entire contents of front window`, bulk property retrieval, and retries. These commands preceded both CPU-diagnostic measurement windows and originated during Outlook troubleshooting.
 
 **Unknown.** The preserved record lacks upstream-content provenance for the commands. Any hidden instruction or upstream actor remains unidentified.
 
@@ -208,7 +219,7 @@ Apple's relevant source is closed, leaving the source-level root cause unknown. 
 
 ## Conclusion
 
-A local coding-agent workflow issued broad Outlook accessibility requests through `System Events` on macOS 27.0.1. Apple's first diagnostic measured the responder growing from 15.48 MB to a reported 187.76 GB footprint in 111.742 seconds, a normalized 12,420.30-fold increase and 7.82 times installed physical memory. A fresh process later reproduced the same stack family, and the two jetsam records reached 222.55 and 253.91 GiB accounting values.
+A local coding-agent workflow issued broad Outlook accessibility requests through `System Events` on macOS 27.0.1. Apple's first diagnostic recorded 15.48 MB and a reported 187.76 GB at endpoints 111.742 seconds apart; this spacing is not the growth duration. A separate jetsam snapshot 7.727 seconds after the second endpoint recorded 222.5464 GiB, making the final measured-interval mean 4.5019 GiB/s and establishing the same lower bound on peak net growth. A fresh process later reproduced the same stack family, and its later jetsam record reached 253.91 GiB.
 
 The supported outcome is severe local resource exhaustion in a first-party automation responder. The exact defect, affected-version range, prompt-injection origin, and repair status remain unknown. Apple's 187.76 GB value quantifies process footprint; outbound byte volume was unmeasured. The broader security lesson is concrete: an agent that combines untrusted content, powerful local automation, retry behavior, and concentrated permissions can turn an ordinary troubleshooting request into system-wide availability loss. Narrow query design, explicit budgets, independent monitoring, separated capabilities, and fail-closed egress controls would materially reduce that risk today.
 

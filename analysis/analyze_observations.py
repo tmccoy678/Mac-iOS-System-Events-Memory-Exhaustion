@@ -40,14 +40,14 @@ def _episode_metrics(
 ) -> Dict[str, float]:
     start_mib = _reported_mib(report["footprint_start_reported"])
     end_mib = _reported_mib(report["footprint_end_reported"])
-    duration = Decimal(str(report["measured_interval_seconds"]))
+    endpoint_spacing = Decimal(str(report["endpoint_spacing_seconds"]))
     return {
         "start_mib_assuming_1024": _rounded(start_mib, 2),
         "end_mib_assuming_1024": _rounded(end_mib, 2),
-        "duration_seconds": _rounded(duration, 3),
+        "endpoint_spacing_seconds": _rounded(endpoint_spacing, 3),
         "growth_multiple": _rounded(end_mib / start_mib, 4),
         "endpoint_derived_mean_mib_per_second": _rounded(
-            (end_mib - start_mib) / duration, 4
+            (end_mib - start_mib) / endpoint_spacing, 4
         ),
         "endpoint_to_physical_ram_multiple": _rounded(
             end_mib / physical_ram_mib, 4
@@ -78,6 +78,19 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
     first_jetsam_gib = Decimal(
         str(observations["first_process"]["jetsam_report"]["gib_at_16384_per_page"])
     )
+    first_jetsam_time = observations["first_process"]["jetsam_report"][
+        "inferred_snapshot_time"
+    ]
+    first_endpoint_gib = _reported_mib(first_report["footprint_end_reported"]) / Decimal(
+        1024
+    )
+    final_interval_seconds = _elapsed_seconds(
+        first_report["measured_interval_end"], first_jetsam_time
+    )
+    final_interval_growth_gib = first_jetsam_gib - first_endpoint_gib
+    final_interval_mean_gib_per_second = (
+        final_interval_growth_gib / final_interval_seconds
+    )
     second_lifetime_max_gib = Decimal(
         str(
             observations["second_process"]["jetsam_report"][
@@ -93,8 +106,10 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
         "sample_size_episodes": 2,
         "statistical_scope": "descriptive-only",
         "rate_caveat": (
-            "Rates divide the difference between two endpoints by elapsed time; "
-            "intermediate trajectory was unmeasured."
+            "The 111.742 seconds is spacing between CPU-diagnostic endpoints, "
+            "not growth duration. A separate jetsam snapshot supports a tighter "
+            "final measured interval; intermediate trajectory and exact peak remain "
+            "unmeasured."
         ),
         "episodes": {
             "first": _episode_metrics(first_report, physical_ram_mib),
@@ -104,6 +119,17 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
             "first": _rounded(first_lag, 3),
             "second": _rounded(second_lag, 3),
             "mean": _rounded((first_lag + second_lag) / Decimal(2), 4),
+        },
+        "first_episode_final_measured_interval": {
+            "seconds": _rounded(final_interval_seconds, 3),
+            "growth_gib": _rounded(final_interval_growth_gib, 4),
+            "mean_gib_per_second": _rounded(
+                final_interval_mean_gib_per_second, 4
+            ),
+            "peak_net_growth_lower_bound_gib_per_second": _rounded(
+                final_interval_mean_gib_per_second, 4
+            ),
+            "exact_peak_status": "unmeasured",
         },
         "jetsam": {
             "first_to_physical_ram_multiple": _rounded(
@@ -138,7 +164,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         first = metrics["episodes"]["first"]
         print(
             "First episode: "
-            f"{first['growth_multiple']:,.4f}x in {first['duration_seconds']:.3f} s"
+            f"{first['growth_multiple']:,.4f}x across endpoints spaced "
+            f"{first['endpoint_spacing_seconds']:.3f} s apart"
+        )
+        bounded = metrics["first_episode_final_measured_interval"]
+        print(
+            "Final measured interval: "
+            f"+{bounded['growth_gib']:.4f} GiB in {bounded['seconds']:.3f} s "
+            f"= {bounded['mean_gib_per_second']:.4f} GiB/s; "
+            "exact peak unmeasured"
         )
         print(metrics["rate_caveat"])
     return 0

@@ -4,7 +4,7 @@ Private coordinated-disclosure case study and Apple-ready report for an availabi
 
 > **Private disclosure status:** Do not make this repository public or publish the proof of concept before Apple has had a reasonable opportunity to investigate and coordinate remediation.
 
-![System Events footprint grew from 15.48 MB to 187.76 GB in 111.7 seconds](figures/system-events-footprint.png)
+![Three recorded System Events footprint measurements; the final measured interval averaged 4.50 GiB/s](figures/system-events-footprint.png)
 
 ## Start here
 
@@ -19,9 +19,9 @@ Private coordinated-disclosure case study and Apple-ready report for an availabi
 
 A local automation process with macOS Automation and Accessibility permission inspected Microsoft Outlook through `System Events`. After recursive and unbounded accessibility-tree enumeration, the first-party `System Events` process entered a recursive scripting-metadata path and exhausted memory.
 
-The first Apple CPU-resource diagnostic measured `System Events` growing from **15.48 MB to 187.76 GB in 111.742 seconds** while averaging 66% CPU. The Mac had 24 GB of physical memory. A later jetsam record accounted approximately 222.55 GiB to that process. After `System Events` was relaunched and broad accessibility queries were repeated, the second instance later accounted approximately 253.91 GiB.
+The first Apple CPU-resource diagnostic recorded `System Events` at **15.48 MB and 187.76 GB at endpoints 111.742 seconds apart** while averaging 66% CPU. That spacing is not the growth duration. A separate jetsam snapshot placed the same process at 222.5464 GiB only 7.727 seconds after the second endpoint. The final measured interval added 34.7864 GiB at a **4.5019 GiB/s mean**, so peak net growth was at least 4.5019 GiB/s; the exact burst profile remains unmeasured. The Mac had 24 GiB of physical memory. After `System Events` was relaunched and broad accessibility queries were repeated, the second instance later accounted approximately 253.91 GiB.
 
-Normalizing the first endpoint with the documented analysis convention of 1 GB = 1,024 MB gives a **12,420.2997-fold increase** and an endpoint **7.8233 times installed physical memory**. The dataset contains two endpoint measurements; the intermediate trajectory was unmeasured.
+Normalizing the CPU diagnostic's second endpoint with the documented analysis convention of 1 GB = 1,024 MB gives a **12,420.2997-fold endpoint increase** and an endpoint **7.8233 times installed physical memory**. The dataset contains two CPU-diagnostic endpoints plus one later jetsam snapshot; the intermediate trajectory and exact peak remain unmeasured.
 
 The observed impact is local availability loss with extreme memory and swap pressure. The exact source defect, affected-release range, and repair status remain unknown.
 

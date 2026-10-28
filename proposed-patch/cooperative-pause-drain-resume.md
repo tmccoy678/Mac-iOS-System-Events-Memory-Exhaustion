@@ -8,7 +8,7 @@ This design preserves the agent, Outlook, `System Events`, and completed travers
 
 ## Evidence Basis
 
-Two fresh `System Events` processes entered the same recursive scripting-property stack after broad Outlook accessibility enumeration. The first diagnostic measured growth from 15.48 MB to 187.76 GB in 111.742 seconds. The second fresh process reached the same stack family and later recorded a 253.9077 GiB jetsam lifetime maximum. In both episodes, the immediate caller could return while the responder continued expensive work.
+Two fresh `System Events` processes entered the same recursive scripting-property stack after broad Outlook accessibility enumeration. The first CPU diagnostic recorded 15.48 MB and 187.76 GB at endpoints 111.742 seconds apart; that spacing is not the growth duration. A separate jetsam snapshot recorded 222.5464 GiB 7.727 seconds after the second endpoint, a 34.7864 GiB increase averaging 4.5019 GiB/s. The second fresh process reached the same stack family and later recorded a 253.9077 GiB jetsam lifetime maximum. In both episodes, the immediate caller could return while the responder continued expensive work.
 
 The evidence establishes three structural conditions:
 

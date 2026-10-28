@@ -1,0 +1,5 @@
+kind,label,diagnostic_time,elapsed_seconds,reported_value,reported_unit,normalized_mib_assuming_1024,source
+measurement,CPU start,11:12:37.749,0.000,15.48,MB,15.48,cpu_resource.diag Powerstats
+measurement,CPU end,11:14:29.491,111.742,187.76,GB,192266.24,cpu_resource.diag Powerstats
+measurement,Jetsam snapshot,11:14:37.218,119.469,222.546417236328,GiB,227887.53125,jetsam artifact timestamp minus timeDelta; 14584802 pages x 16 KiB
+reference,Installed physical memory,,,24,GiB,24576,sysctl hw.memsize

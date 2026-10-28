@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "incident_date_local": "2026-10-27",
   "timezone": "-05:00",
   "assessed_system": {
@@ -28,7 +28,8 @@
       "cpu_average_percent": 66,
       "measured_interval_start": "2026-10-27T11:12:37.749-05:00",
       "measured_interval_end": "2026-10-27T11:14:29.491-05:00",
-      "measured_interval_seconds": 111.742,
+      "endpoint_spacing_seconds": 111.742,
+      "endpoint_spacing_interpretation": "spacing between two CPU-diagnostic footprint endpoints; growth duration unmeasured",
       "footprint_start_reported": "15.48 MB",
       "footprint_end_reported": "187.76 GB",
       "stack_markers": [
@@ -38,7 +39,10 @@
       ]
     },
     "jetsam_report": {
-      "artifact_timestamp": "2026-10-27T11:35:32-05:00",
+      "artifact_timestamp": "2026-10-27T11:35:32.810-05:00",
+      "time_delta_milliseconds": 1255592,
+      "inferred_snapshot_time": "2026-10-27T11:14:37.218-05:00",
+      "snapshot_time_method": "artifact timestamp minus timeDelta; cross-checked against process-termination logs",
       "rpages": 14584802,
       "bytes_at_16384_per_page": 238957395968,
       "gib_at_16384_per_page": 222.546417236328
@@ -54,7 +58,8 @@
       "cpu_average_percent": 67,
       "measured_interval_start": "2026-10-27T11:21:03.541-05:00",
       "measured_interval_end": "2026-10-27T11:22:35.029-05:00",
-      "measured_interval_seconds": 91.488,
+      "endpoint_spacing_seconds": 91.488,
+      "endpoint_spacing_interpretation": "spacing between two CPU-diagnostic footprint endpoints; growth duration unmeasured",
       "footprint_start_reported": "110.64 MB",
       "footprint_end_reported": "4248.64 MB",
       "stack_markers": [

@@ -28,6 +28,18 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(12420.2997, first["growth_multiple"])
         self.assertEqual(1720.4879, first["endpoint_derived_mean_mib_per_second"])
         self.assertEqual(7.8233, first["endpoint_to_physical_ram_multiple"])
+        self.assertEqual(111.742, first["endpoint_spacing_seconds"])
+
+    def test_first_episode_final_measured_interval(self) -> None:
+        bounded = self.metrics["first_episode_final_measured_interval"]
+
+        self.assertEqual(7.727, bounded["seconds"])
+        self.assertEqual(34.7864, bounded["growth_gib"])
+        self.assertEqual(4.5019, bounded["mean_gib_per_second"])
+        self.assertEqual(
+            4.5019, bounded["peak_net_growth_lower_bound_gib_per_second"]
+        )
+        self.assertEqual("unmeasured", bounded["exact_peak_status"])
 
     def test_second_episode_and_jetsam_statistics(self) -> None:
         second = self.metrics["episodes"]["second"]
@@ -45,6 +57,7 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(2, self.metrics["sample_size_episodes"])
         self.assertEqual("descriptive-only", self.metrics["statistical_scope"])
         self.assertIn("unmeasured", self.metrics["rate_caveat"])
+        self.assertIn("not growth duration", self.metrics["rate_caveat"])
 
 
 if __name__ == "__main__":
