@@ -211,7 +211,7 @@ figure <- ggdraw() +
   ) +
   draw_plot(panels, x = 0.015, y = 0.09, width = 0.97, height = 0.78) +
   draw_label(
-    "The CPU diagnostic recorded two endpoints 111.742 seconds apart; this spacing is not the growth duration. A separate jetsam snapshot adds a third point.\nDashed connectors are visual guides; intermediate trajectory and exact peak remain unmeasured. GB/MB normalization uses 1 GB = 1,024 MB.",
+    "The CPU diagnostic recorded two endpoints 111.742 seconds apart; this spacing is not the growth duration. A separate jetsam snapshot adds a third point.\nDashed connectors are visual guides; intermediate trajectory and instantaneous peak rate remain unmeasured. GB/MB normalization uses 1 GB = 1,024 MB.",
     x = 0.035, y = 0.018, hjust = 0, vjust = 0,
     fontfamily = "Helvetica", size = 9.1,
     color = colors[["grey"]]

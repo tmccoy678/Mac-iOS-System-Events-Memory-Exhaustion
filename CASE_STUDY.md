@@ -7,7 +7,7 @@ October 27, 2026
 
 ## Abstract
 
-I investigated an extreme memory event on a Mac17,2 with an Apple M5, 24 GiB of physical memory, and macOS Golden Gate 27.0.1 (26A434). A local coding agent was inspecting Microsoft Outlook through AppleScript and JavaScript for Automation when it generated broad accessibility queries, including recursive `uiElements()` traversal and `entire contents` enumeration through Apple's `System Events` process. Apple's first CPU-resource diagnostic recorded process-footprint endpoints of 15.48 MB and 187.76 GB 111.742 seconds apart while averaging 66% CPU. That spacing is not the growth duration. Under the unit normalization used in this study, the second endpoint was 12,420.30 times the first and 7.82 times installed physical memory. A separate jetsam snapshot placed the same process at 222.5464 GiB 7.727 seconds after the second endpoint. The final measured interval added 34.7864 GiB at a 4.5019 GiB/s mean, so peak net growth was at least 4.5019 GiB/s; the exact peak remains unmeasured. After `System Events` was relaunched and broad queries were repeated, a fresh process entered the same stack family; its diagnostic recorded endpoints of 110.64 MB and 4,248.64 MB 91.488 seconds apart, and a later jetsam record reported a 253.91 GiB lifetime maximum. Both diagnostics repeatedly sampled one `System Events` offset followed by Foundation scripting-property lookup in `NSScriptClassDescription`.
+I investigated an extreme memory event on a Mac17,2 with an Apple M5, 24 GiB of physical memory, and macOS Golden Gate 27.0.1 (26A434). A local coding agent was inspecting Microsoft Outlook through AppleScript and JavaScript for Automation when it generated broad accessibility queries, including recursive `uiElements()` traversal and `entire contents` enumeration through Apple's `System Events` process. Apple's first CPU-resource diagnostic recorded process-footprint endpoints of 15.48 MB and 187.76 GB 111.742 seconds apart while averaging 66% CPU. That spacing is not the growth duration. Under the unit normalization used in this study, the second endpoint was 12,420.30 times the first and 7.82 times installed physical memory. A separate jetsam snapshot recorded both `rpages` and `lifetimeMax` as 14,584,802 pages: an exact accounting peak of 222.546417 GiB (238.957396 GB) 7.727 seconds after the second endpoint. The final measured interval added 34.7864 GiB at a 4.5019 GiB/s mean, establishing that lower bound on the instantaneous peak net-growth rate. A constant-terminal-rate back-extrapolation estimates a 49.430194-second high-rate phase beginning at 11:13:47.787806; this is a model, not a direct duration measurement. After `System Events` was relaunched and broad queries were repeated, a fresh process entered the same stack family; its diagnostic recorded endpoints of 110.64 MB and 4,248.64 MB 91.488 seconds apart, and a later jetsam record reported a 253.91 GiB lifetime maximum. Both diagnostics repeatedly sampled one `System Events` offset followed by Foundation scripting-property lookup in `NSScriptClassDescription`.
 
 The evidence establishes a local availability failure associated with broad accessibility enumeration and unbounded scripting work. Apple's closed source leaves the exact failed invariant unknown. I model a plausible prompt-injection delivery chain because an agent with shell, Automation, Accessibility, and network authority could combine otherwise separate capabilities. The accompanying model is deliberately non-deployable: it uses one fixed synthetic record, surfaces a zero-width character, and replaces real data access, `System Events` execution, and network egress with fail-closed stubs. This case demonstrates why agent controllers need content/tool separation, narrow accessibility selectors, recursion and memory budgets, retry suppression, independent process monitoring, and egress controls that remain effective during local resource exhaustion.
 
@@ -91,7 +91,14 @@ The 111.742 seconds is spacing between the two CPU-diagnostic endpoints, not the
 = 4.501930534 GiB/s
 ```
 
-The 7.727-second interval mean establishes a 4.5019 GiB/s lower bound on peak net growth. Intermediate allocation behavior and the exact peak were unmeasured. The physical-memory multiple was the reported endpoint or jetsam GiB value divided by 24 GiB. The mean trigger-to-measurement lag was calculated from the two matched command and interval-start timestamps. [`analysis/analyze_observations.py`](analysis/analyze_observations.py) reproduces every derived value from the sanitized JSON.
+The 7.727-second interval mean establishes a 4.5019 GiB/s lower bound on the instantaneous peak net-growth rate. The jetsam record's equal `rpages` and `lifetimeMax` values identify an exact recorded accounting peak of 222.546417236328 GiB, while the instantaneous peak rate and intermediate trajectory remain unmeasured. I estimated the high-rate-phase duration under a constant-terminal-rate model:
+
+```text
+(222.546417236328 GiB - 15.48 / 1,024 GiB) / 4.501930534 GiB/s
+= 49.430194 seconds
+```
+
+Subtracting the model duration from the 11:14:37.218 snapshot gives an inferred onset of 11:13:47.787806. This is a model-supported estimate, not a direct observation or confidence interval; nonlinear allocation could produce a different duration. The physical-memory multiple was the reported endpoint or jetsam GiB value divided by 24 GiB. The mean trigger-to-measurement lag was calculated from the two matched command and interval-start timestamps. [`analysis/analyze_observations.py`](analysis/analyze_observations.py) reproduces every derived value from the sanitized JSON.
 
 | Measure | Episode 1 | Episode 2 |
 | --- | ---: | ---: |
@@ -103,6 +110,7 @@ The 7.727-second interval mean establishes a 4.5019 GiB/s lower bound on peak ne
 | Whole-window endpoint mean | 1,720.4879 MB/s | 45.2300 MB/s |
 | Final measured interval | 7.727 s | unavailable |
 | Final measured-interval mean | 4.5019 GiB/s | unavailable |
+| Modeled high-rate phase | 49.430194 s | unavailable |
 | Endpoint / physical memory | 7.8233× | 0.1729× |
 | Average CPU in diagnostic | 66% | 67% |
 | Broad-query-to-measurement lag | 2.883 s | 2.828 s |
@@ -120,9 +128,9 @@ The arithmetic mean of the two diagnostic CPU averages was 66.5%. The mean tempo
 
 **Observed.** Apple's first CPU-resource diagnostic identified `System Events` PID 40483 and measured its footprint from 15.48 MB to 187.76 GB between 11:12:37.749 and 11:14:29.491. The process accumulated 90 CPU seconds in a 136-second report window, approximately 66% average CPU. The immediate `osascript` caller returned while `System Events` continued working.
 
-**Observed.** The later jetsam record identified the same PID at 14,584,802 resident pages. At the report's 16 KiB page size, that equals 222.5464 GiB, or 9.2728 times installed physical memory.
+**Observed.** The later jetsam record identified the same PID with both `rpages` and `lifetimeMax` equal to 14,584,802 pages. At the report's 16 KiB page size, the exact recorded accounting peak is 238,957,395,968 bytes, 222.546417 GiB (238.957396 GB), or 9.2728 times installed physical memory.
 
-**Derived.** Subtracting the jetsam report's 1,255,592-millisecond `timeDelta` from its 11:35:32.810 report time gives an inferred snapshot time of 11:14:37.218. This is 7.727 seconds after the 187.76 GB CPU endpoint and 1.197 seconds before logged process closure. The footprint increased 34.7864 GiB across that final measured interval, averaging 4.5019 GiB/s. Peak net growth was at least 4.5019 GiB/s; the exact peak and the earlier burst profile remain unmeasured.
+**Derived.** Subtracting the jetsam report's 1,255,592-millisecond `timeDelta` from its 11:35:32.810 report time gives an inferred snapshot time of 11:14:37.218. This is 7.727 seconds after the 187.76 GB CPU endpoint and 1.197 seconds before logged process closure. The footprint increased 34.7864 GiB across that final measured interval, averaging 4.5019 GiB/s. The instantaneous peak net-growth rate was at least 4.5019 GiB/s but remains unmeasured. Extrapolating the terminal mean backward to the 15.48 MB baseline estimates a 49.430194-second high-rate phase beginning at 11:13:47.787806. The estimate assumes constant terminal-rate growth and is not a direct measurement of the earlier trajectory.
 
 ### 2. The diagnostic stack repeatedly crossed the scripting-property path
 
@@ -219,7 +227,7 @@ Apple's relevant source is closed, leaving the source-level root cause unknown. 
 
 ## Conclusion
 
-A local coding-agent workflow issued broad Outlook accessibility requests through `System Events` on macOS 27.0.1. Apple's first diagnostic recorded 15.48 MB and a reported 187.76 GB at endpoints 111.742 seconds apart; this spacing is not the growth duration. A separate jetsam snapshot 7.727 seconds after the second endpoint recorded 222.5464 GiB, making the final measured-interval mean 4.5019 GiB/s and establishing the same lower bound on peak net growth. A fresh process later reproduced the same stack family, and its later jetsam record reached 253.91 GiB.
+A local coding-agent workflow issued broad Outlook accessibility requests through `System Events` on macOS 27.0.1. Apple's first diagnostic recorded 15.48 MB and a reported 187.76 GB at endpoints 111.742 seconds apart; this spacing is not the growth duration. A separate jetsam snapshot 7.727 seconds after the second endpoint recorded an exact accounting peak of 222.546417 GiB, making the final measured-interval mean 4.5019 GiB/s and establishing that lower bound on the instantaneous peak net-growth rate. A constant-terminal-rate reconstruction estimates a 49.430194-second high-rate phase, but the duration and intermediate trajectory were not directly observed. A fresh process later reproduced the same stack family, and its later jetsam record reached 253.91 GiB.
 
 The supported outcome is severe local resource exhaustion in a first-party automation responder. The exact defect, affected-version range, prompt-injection origin, and repair status remain unknown. Apple's 187.76 GB value quantifies process footprint; outbound byte volume was unmeasured. The broader security lesson is concrete: an agent that combines untrusted content, powerful local automation, retry behavior, and concentrated permissions can turn an ordinary troubleshooting request into system-wide availability loss. Narrow query design, explicit budgets, independent monitoring, separated capabilities, and fail-closed egress controls would materially reduce that risk today.
 

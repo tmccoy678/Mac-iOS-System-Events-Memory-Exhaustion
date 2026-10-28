@@ -12,10 +12,11 @@ All times below are local time in CDT (UTC-05:00) on 2026-10-27. The timeline co
 | 11:12:49.815 | The JXA caller returned, but the first-party responder remained active. | Recorded command and Apple diagnostic |
 | 11:13:00.766 | The session created an AppleScript helper using `entire contents of front window`, followed by per-element property retrieval. | Recorded command |
 | 11:13:04.852 | The `entire contents` helper was executed. | Recorded command |
+| 11:13:47.787806 | Modeled onset of a 49.430194-second high-rate phase. This is obtained by extrapolating the terminal 4.501930534 GiB/s measured-interval mean backward from the jetsam snapshot to the 15.48 MB baseline; it is not a directly observed event. | Derived constant-rate model |
 | 11:13:52.546 | A further bulk request asked for multiple properties of every top-level UI element. | Recorded command |
 | 11:14:29.491 | The second CPU-diagnostic footprint endpoint was 187.76 GB. It was recorded 111.742 seconds after the 15.48 MB endpoint; the spacing is not a measured growth duration. | Apple diagnostic |
 | 11:14:30.987 | The first CPU-resource diagnostic window ended. Its heaviest stack repeatedly traversed one `System Events` offset and Foundation scripting-class property lookup. | Apple diagnostic |
-| 11:14:37.218 | Inferred jetsam snapshot time for PID 40483: 14,584,802 pages at 16 KiB per page, or 222.5464 GiB. The final measured interval added 34.7864 GiB in 7.727 seconds, averaging 4.5019 GiB/s. | Apple jetsam report; timestamp inferred as report date minus `timeDelta` and cross-checked against termination logs |
+| 11:14:37.218 | Inferred jetsam snapshot time for PID 40483: `rpages` and `lifetimeMax` were both 14,584,802 pages. At 16 KiB per page, the exact recorded accounting peak is 222.546417 GiB (238.957396 GB). The final measured interval added 34.7864 GiB in 7.727 seconds, averaging 4.5019 GiB/s. | Apple jetsam report; timestamp inferred as report date minus `timeDelta` and cross-checked against termination logs |
 | 11:15:21.673 | An Escape-key request through `System Events` caused the service to be available again as a fresh process, PID 41643. | Recorded command and later diagnostic |
 | 11:20:21.832 | Apple's second CPU-resource diagnostic window began. | Apple diagnostic |
 | 11:21:00.713 | The broad `entire contents` helper was retried. | Recorded command |
@@ -60,7 +61,8 @@ The repeated stack family and recurrence in a fresh `System Events` process supp
 
 ## Evidence limits
 
-- The plot contains two CPU-diagnostic endpoints and one later jetsam snapshot. The 111.742 seconds is endpoint spacing, not growth duration. Intermediate trajectory and exact peak were unmeasured.
+- The plot contains two CPU-diagnostic endpoints and one later jetsam snapshot. The 111.742 seconds is endpoint spacing, not growth duration. The recorded accounting peak is exact within the jetsam record. Intermediate trajectory and the instantaneous peak net-growth rate were unmeasured.
+- The 49.430194-second phase is a constant-terminal-rate reconstruction. It is not an observed duration or a statistical confidence interval.
 - Jetsam reports contain aggregate process histories. The simultaneous kill set is unknown.
 - Process footprint and resident-page accounting quantify memory state. Source-content volume and network transfer require separate measurements.
 - Confirmed impact: severe local resource exhaustion. File-loss outcome, outbound traffic, memory-safety behavior, and privilege-transition behavior remain unresolved by the preserved record.

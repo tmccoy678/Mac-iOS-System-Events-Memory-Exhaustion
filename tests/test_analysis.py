@@ -39,7 +39,24 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(
             4.5019, bounded["peak_net_growth_lower_bound_gib_per_second"]
         )
-        self.assertEqual("unmeasured", bounded["exact_peak_status"])
+        self.assertEqual(
+            "unmeasured", bounded["instantaneous_peak_net_growth_rate_status"]
+        )
+
+    def test_recorded_peak_and_modeled_duration_are_distinguished(self) -> None:
+        peak = self.metrics["first_episode_recorded_footprint_peak"]
+        model = self.metrics["first_episode_constant_terminal_rate_model"]
+
+        self.assertEqual(14584802, peak["pages"])
+        self.assertEqual(238957395968, peak["bytes"])
+        self.assertEqual(222.546417236328, peak["gib"])
+        self.assertEqual(238.957395968, peak["decimal_gb"])
+        self.assertTrue(peak["rpages_equals_lifetime_max"])
+        self.assertEqual(49.430194, model["duration_seconds"])
+        self.assertEqual(
+            "2026-10-27T11:13:47.787806-05:00", model["inferred_onset"]
+        )
+        self.assertEqual("modeled, not directly observed", model["status"])
 
     def test_second_episode_and_jetsam_statistics(self) -> None:
         second = self.metrics["episodes"]["second"]
@@ -58,6 +75,7 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual("descriptive-only", self.metrics["statistical_scope"])
         self.assertIn("unmeasured", self.metrics["rate_caveat"])
         self.assertIn("not growth duration", self.metrics["rate_caveat"])
+        self.assertIn("instantaneous", self.metrics["rate_caveat"])
 
 
 if __name__ == "__main__":

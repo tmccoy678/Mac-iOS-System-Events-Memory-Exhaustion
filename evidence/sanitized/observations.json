@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "incident_date_local": "2026-10-27",
   "timezone": "-05:00",
   "assessed_system": {
@@ -45,7 +45,12 @@
       "snapshot_time_method": "artifact timestamp minus timeDelta; cross-checked against process-termination logs",
       "rpages": 14584802,
       "bytes_at_16384_per_page": 238957395968,
-      "gib_at_16384_per_page": 222.546417236328
+      "gib_at_16384_per_page": 222.546417236328,
+      "decimal_gb_at_16384_per_page": 238.957395968,
+      "lifetime_max_pages": 14584802,
+      "lifetime_max_bytes_at_16384_per_page": 238957395968,
+      "lifetime_max_gib_at_16384_per_page": 222.546417236328,
+      "rpages_equals_lifetime_max": true
     }
   },
   "second_process": {

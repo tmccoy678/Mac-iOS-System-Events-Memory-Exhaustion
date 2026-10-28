@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from typing import Any, Dict, Sequence
@@ -78,9 +78,13 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
     first_jetsam_gib = Decimal(
         str(observations["first_process"]["jetsam_report"]["gib_at_16384_per_page"])
     )
+    first_jetsam = observations["first_process"]["jetsam_report"]
     first_jetsam_time = observations["first_process"]["jetsam_report"][
         "inferred_snapshot_time"
     ]
+    first_start_gib = _reported_mib(first_report["footprint_start_reported"]) / Decimal(
+        1024
+    )
     first_endpoint_gib = _reported_mib(first_report["footprint_end_reported"]) / Decimal(
         1024
     )
@@ -91,6 +95,14 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
     final_interval_mean_gib_per_second = (
         final_interval_growth_gib / final_interval_seconds
     )
+    modeled_high_rate_duration_seconds = (
+        (first_jetsam_gib - first_start_gib)
+        / final_interval_mean_gib_per_second
+    )
+    modeled_high_rate_onset = datetime.fromisoformat(first_jetsam_time) - timedelta(
+        seconds=float(modeled_high_rate_duration_seconds)
+    )
+    first_peak_bytes = Decimal(str(first_jetsam["bytes_at_16384_per_page"]))
     second_lifetime_max_gib = Decimal(
         str(
             observations["second_process"]["jetsam_report"][
@@ -108,8 +120,9 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
         "rate_caveat": (
             "The 111.742 seconds is spacing between CPU-diagnostic endpoints, "
             "not growth duration. A separate jetsam snapshot supports a tighter "
-            "final measured interval; intermediate trajectory and exact peak remain "
-            "unmeasured."
+            "final measured interval. The recorded footprint peak is exact within "
+            "the jetsam accounting, but intermediate trajectory and the instantaneous "
+            "peak net-growth rate remain unmeasured."
         ),
         "episodes": {
             "first": _episode_metrics(first_report, physical_ram_mib),
@@ -129,7 +142,31 @@ def derive_metrics(observations: Dict[str, Any]) -> Dict[str, Any]:
             "peak_net_growth_lower_bound_gib_per_second": _rounded(
                 final_interval_mean_gib_per_second, 4
             ),
-            "exact_peak_status": "unmeasured",
+            "instantaneous_peak_net_growth_rate_status": "unmeasured",
+        },
+        "first_episode_recorded_footprint_peak": {
+            "pages": int(first_jetsam["rpages"]),
+            "page_size_bytes": int(observations["assessed_system"]["page_size_bytes"]),
+            "bytes": int(first_peak_bytes),
+            "gib": _rounded(first_jetsam_gib, 12),
+            "decimal_gb": _rounded(first_peak_bytes / Decimal(1_000_000_000), 9),
+            "rpages_equals_lifetime_max": bool(
+                first_jetsam["rpages_equals_lifetime_max"]
+            ),
+            "status": "recorded in the jetsam artifact",
+        },
+        "first_episode_constant_terminal_rate_model": {
+            "status": "modeled, not directly observed",
+            "assumption": (
+                "the final measured-interval mean of 4.501930534 GiB/s is "
+                "extrapolated backward from the jetsam snapshot to the 15.48 MB baseline"
+            ),
+            "duration_seconds": _rounded(modeled_high_rate_duration_seconds, 6),
+            "inferred_onset": modeled_high_rate_onset.isoformat(timespec="microseconds"),
+            "interpretation": (
+                "a model-supported estimate of the high-rate phase; nonlinear "
+                "allocation could produce a different duration"
+            ),
         },
         "jetsam": {
             "first_to_physical_ram_multiple": _rounded(
@@ -172,7 +209,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             "Final measured interval: "
             f"+{bounded['growth_gib']:.4f} GiB in {bounded['seconds']:.3f} s "
             f"= {bounded['mean_gib_per_second']:.4f} GiB/s; "
-            "exact peak unmeasured"
+            "instantaneous peak rate unmeasured"
+        )
+        model = metrics["first_episode_constant_terminal_rate_model"]
+        print(
+            "Constant-terminal-rate model: "
+            f"{model['duration_seconds']:.6f} s, inferred onset "
+            f"{model['inferred_onset']} (modeled, not directly observed)"
         )
         print(metrics["rate_caveat"])
     return 0
