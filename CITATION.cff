@@ -1,10 +1,11 @@
 cff-version: 1.2.0
-message: "Please cite this private case-study repository using the metadata below."
+message: "Please cite this public case-study repository using the metadata below."
 title: "When System Events Reported a 187.76 GB Footprint"
 type: dataset
 authors:
   - family-names: McCoy
     given-names: Taylor
 date-released: "2026-10-27"
-repository-code: "https://github.com/tmccoy678/macos-system-events-memory-exhaustion"
+repository-code: "https://github.com/tmccoy678/Mac-iOS-System-Events-Memory-Exhaustion"
 version: 0.1.0
+license: MIT

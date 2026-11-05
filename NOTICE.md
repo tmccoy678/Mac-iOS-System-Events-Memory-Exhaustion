@@ -1,5 +1,10 @@
-# Private research notice
+# Research notice
 
-Copyright 2026 Taylor Westfall-McCoy. All rights reserved.
+Copyright 2026 Taylor Westfall-McCoy.
 
-This private repository is retained for coordinated vulnerability disclosure and engineering review. Authorized use is limited to private review, remediation, and disclosure; publication, redistribution, weaponization, and representation as an Apple advisory or fix are excluded.
+This public repository documents an independent runtime observation and is
+licensed under the MIT License. See [`LICENSE`](LICENSE).
+
+The repository is not an Apple advisory, source-level diagnosis, or vendor fix.
+Raw diagnostic files remain excluded because they may contain host-specific
+process inventories and identifiers.

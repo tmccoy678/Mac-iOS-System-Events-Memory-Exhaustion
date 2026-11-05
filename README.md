@@ -2,7 +2,9 @@
 
 Disclosure and case study and Apple-ready report for an availability defect observed in Apple's `System Events` scripting bridge on macOS 27.0.1 (26A434).
 
-> **Disclosure status:** Do not make this repository public or publish the proof of concept before Apple has had a reasonable opportunity to investigate and coordinate remediation. I originally wanted to email this to someone, but had no idea who to tell. Maybe I'll email them today. So, I guess, until then, be careful out there. 
+> **Disclosure status:** Public as of November 4, 2026. Raw `.diag` and `.ips`
+> evidence remains excluded. Vendor notification, affected-release range, and
+> remediation status remain unresolved.
 
 ![Three recorded System Events footprint measurements; the final measured interval averaged 4.50 GiB/s](figures/system-events-footprint.png)
 
@@ -75,3 +77,7 @@ Install the deployed runtime containment package on an affected Mac:
 ## Disclosure handling
 
 See [SECURITY.md](SECURITY.md).
+
+## License
+
+The repository is available under the [MIT License](LICENSE).
