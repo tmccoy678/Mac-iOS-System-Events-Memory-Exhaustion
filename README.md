@@ -1,8 +1,8 @@
 # macOS System Events memory exhaustion
 
-Private coordinated-disclosure case study and Apple-ready report for an availability defect observed in Apple's `System Events` scripting bridge on macOS 27.0.1 (26A434).
+Disclosure and case study and Apple-ready report for an availability defect observed in Apple's `System Events` scripting bridge on macOS 27.0.1 (26A434).
 
-> **Private disclosure status:** Do not make this repository public or publish the proof of concept before Apple has had a reasonable opportunity to investigate and coordinate remediation.
+> **Disclosure status:** Do not make this repository public or publish the proof of concept before Apple has had a reasonable opportunity to investigate and coordinate remediation. I originally wanted to email this to someone, but had no idea who to tell. Maybe I'll email them today. So, I guess, until then, be careful out there. 
 
 ![Three recorded System Events footprint measurements; the final measured interval averaged 4.50 GiB/s](figures/system-events-footprint.png)
 
@@ -74,4 +74,4 @@ Install the deployed runtime containment package on an affected Mac:
 
 ## Disclosure handling
 
-See [SECURITY.md](SECURITY.md). Preserve the private repository and raw evidence until Apple assigns a case identifier and provides disclosure guidance.
+See [SECURITY.md](SECURITY.md).
